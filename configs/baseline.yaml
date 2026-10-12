@@ -1,0 +1,50 @@
+# Osnovna konfiguracija za fine-tuning.
+# Sve vrednosti mogu da se pregaze iz CLI-ja: --set train.lr=3e-4 model.name=convnext_tiny.dinov3_lvd1689m
+
+seed: 42
+
+data:
+  # Kaggle "Dog Breed Identification": labels.csv (id,breed) + folder train/ sa {id}.jpg
+  labels_csv: data/raw/labels.csv
+  images_dir: data/raw/train
+  splits_dir: data/splits          # ovde prepare_splits upisuje train.csv / val.csv / test.csv
+  val_size: 0.10
+  test_size: 0.10
+  num_workers: 4                   # na Windows-u probaj 0-2 ako se zaglavi
+  batch_size: 64
+
+model:
+  # Kandidati (pogledaj docs/PLAN.md, Dan 2):
+  #   efficientnet_b0.ra4_e3600_r224_in1k        ~5.3M param, brz na CPU
+  #   mobilenetv4_conv_medium.e500_r256_in1k     ~9.7M param
+  #   convnext_tiny.dinov3_lvd1689m              ~28M param, self-supervised (bez ImageNet labela)
+  name: efficientnet_b0.ra4_e3600_r224_in1k
+  pretrained: true
+  drop_rate: 0.2
+  drop_path_rate: 0.1
+  img_size: null                   # null = koristi rezoluciju za koju je model pretreniran
+
+train:
+  epochs: 15
+  freeze_epochs: 1                 # prve N epohe treniramo samo "glavu" (classifier)
+  lr: 1.0e-3                       # lr za glavu
+  backbone_lr_mult: 0.1            # backbone dobija lr * 0.1 (discriminative LR)
+  weight_decay: 0.05
+  warmup_epochs: 1
+  label_smoothing: 0.1
+  mixup_alpha: 0.0                 # npr. 0.2 da uključiš Mixup
+  cutmix_alpha: 0.0                # npr. 1.0 da uključiš CutMix
+  auto_augment: rand-m7-mstd0.5    # RandAugment; null da isključiš
+  random_erasing: 0.1
+  ema_decay: 0.9998                # null da isključiš EMA težina
+  amp: true                        # mixed precision na GPU
+  early_stopping_patience: 4
+  max_train_batches: null          # za brze testove (smoke test)
+
+output:
+  dir: runs
+  run_name: null                   # null = automatski (model + timestamp)
+
+logging:
+  wandb: false                     # true + `wandb login` za praćenje eksperimenata
+  wandb_project: kp-dog-breeds

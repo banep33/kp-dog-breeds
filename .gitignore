@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# podaci i težine ne idu u git (preveliki) -> Kaggle dataset / W&B artifacts / DVC
+data/
+runs/
+artifacts/
+*.pt
+*.onnx
+wandb/
+optuna.db

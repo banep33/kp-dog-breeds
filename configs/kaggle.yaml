@@ -1,0 +1,13 @@
+# Isto kao baseline.yaml, samo putanje za Kaggle notebook.
+# Proveri tačnu putanju sa `!ls /kaggle/input` (Kaggle je menjao strukturu foldera).
+base: baseline.yaml
+
+data:
+  labels_csv: /kaggle/input/dog-breed-identification/labels.csv
+  images_dir: /kaggle/input/dog-breed-identification/train
+  splits_dir: /kaggle/working/splits
+  num_workers: 4
+  batch_size: 64
+
+output:
+  dir: /kaggle/working/runs

@@ -1,0 +1,21 @@
+# Trening (Kaggle/Colab GPU). Na Kaggle-u su torch/torchvision već instalirani.
+torch>=2.3
+torchvision>=0.18
+timm>=1.0.15
+pandas>=2.0
+scikit-learn>=1.4
+pyyaml>=6.0
+pillow>=10.0
+numpy>=1.26
+
+# Izvoz i inference na CPU-u
+onnx>=1.16
+onnxruntime>=1.18
+
+# Eksperimenti i HPO (Dan 3-4)
+optuna>=4.0
+wandb>=0.17
+cleanlab>=2.6
+
+# Testovi
+pytest>=8.0
