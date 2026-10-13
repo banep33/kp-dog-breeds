@@ -1,0 +1,131 @@
+[
+  {
+    "model": "efficientnet_b0.ra4_e3600_r224_in1k",
+    "emb_dim": 1280,
+    "val_top1": 0.9023798108100891,
+    "val_top3": 0.9893152117729187,
+    "val_loss": 0.3923267424106598,
+    "test_top1": 0.9033041596412659,
+    "test_top3": 0.9815354943275452,
+    "test_top5": 0.9917395710945129,
+    "test_log_loss": 0.38117778301239014,
+    "test_log_loss_calibrated": 0.30562642216682434,
+    "test_ece": 0.09703163094854791,
+    "test_ece_calibrated": 0.01259869312463862,
+    "temperature": 0.6759335398674011,
+    "best_epoch": 24,
+    "lr": 0.0001,
+    "lr_search": [
+      {
+        "lr": 0.0001,
+        "val_top1": 0.9023798108100891,
+        "val_top3": 0.9893152117729187
+      },
+      {
+        "lr": 0.0003,
+        "val_top1": 0.9023798108100891,
+        "val_top3": 0.9893152117729187
+      },
+      {
+        "lr": 0.001,
+        "val_top1": 0.8999514579772949,
+        "val_top3": 0.9893152117729187
+      },
+      {
+        "lr": 0.003,
+        "val_top1": 0.8931519985198975,
+        "val_top3": 0.9830014705657959
+      }
+    ],
+    "n_test": 2058,
+    "head_train_seconds": 36.2,
+    "embed_img_per_sec_cpu": 30.6,
+    "checkpoint": "runs\\probe_efficientnet_b0\\best.pt"
+  },
+  {
+    "model": "mobilenetv4_conv_medium.e500_r256_in1k",
+    "emb_dim": 1280,
+    "val_top1": 0.9033511281013489,
+    "val_top3": 0.9830014705657959,
+    "val_loss": 0.4103396236896515,
+    "test_top1": 0.9023323655128479,
+    "test_top3": 0.9795918464660645,
+    "test_top5": 0.9863945841789246,
+    "test_log_loss": 0.393294095993042,
+    "test_log_loss_calibrated": 0.3469380736351013,
+    "test_ece": 0.06179614791572383,
+    "test_ece_calibrated": 0.02267985871338638,
+    "temperature": 0.7707973718643188,
+    "best_epoch": 8,
+    "lr": 0.003,
+    "lr_search": [
+      {
+        "lr": 0.0001,
+        "val_top1": 0.8980087637901306,
+        "val_top3": 0.9873725175857544
+      },
+      {
+        "lr": 0.0003,
+        "val_top1": 0.9004371166229248,
+        "val_top3": 0.9864011406898499
+      },
+      {
+        "lr": 0.001,
+        "val_top1": 0.9014084339141846,
+        "val_top3": 0.9834871292114258
+      },
+      {
+        "lr": 0.003,
+        "val_top1": 0.9033511281013489,
+        "val_top3": 0.9830014705657959
+      }
+    ],
+    "n_test": 2058,
+    "head_train_seconds": 36.0,
+    "embed_img_per_sec_cpu": 28.1,
+    "checkpoint": "runs\\probe_mobilenetv4_conv_medium\\best.pt"
+  },
+  {
+    "model": "convnext_tiny.dinov3_lvd1689m",
+    "emb_dim": 768,
+    "val_top1": 0.8499271273612976,
+    "val_top3": 0.9679455757141113,
+    "val_loss": 0.6090388894081116,
+    "test_top1": 0.8474246859550476,
+    "test_top3": 0.9650145769119263,
+    "test_top5": 0.9825072884559631,
+    "test_log_loss": 0.5983443260192871,
+    "test_log_loss_calibrated": 0.5196390748023987,
+    "test_ece": 0.11061949078156547,
+    "test_ece_calibrated": 0.022003900371962537,
+    "temperature": 0.6682526469230652,
+    "best_epoch": 21,
+    "lr": 0.0003,
+    "lr_search": [
+      {
+        "lr": 0.0001,
+        "val_top1": 0.8363283276557922,
+        "val_top3": 0.9664885997772217
+      },
+      {
+        "lr": 0.0003,
+        "val_top1": 0.8499271273612976,
+        "val_top3": 0.9679455757141113
+      },
+      {
+        "lr": 0.001,
+        "val_top1": 0.8440991044044495,
+        "val_top3": 0.9660029411315918
+      },
+      {
+        "lr": 0.003,
+        "val_top1": 0.8324429392814636,
+        "val_top3": 0.9650315642356873
+      }
+    ],
+    "n_test": 2058,
+    "head_train_seconds": 25.4,
+    "embed_img_per_sec_cpu": 15.1,
+    "checkpoint": "runs\\probe_convnext_tiny\\best.pt"
+  }
+]

@@ -83,7 +83,8 @@ def plot(rows: list[dict], acc_key: str, budget_p95: float, out: Path) -> None:
     ax.set_ylabel(f"{acc_key}  [%]  →  više je bolje")
     ax.set_title("Pareto: tačnost naspram brzine (linear probe, Ryzen 7 5700U)")
     ax.grid(alpha=0.25, ls=":")
-    ax.legend(loc="lower right", fontsize=9)
+    if ax.get_legend_handles_labels()[0]:  # samo jedan model na granici -> nema linije
+        ax.legend(loc="lower right", fontsize=9)
     fig.tight_layout()
     FIG.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=130)

@@ -25,3 +25,8 @@ docs/scratch*
 reports/figures/
 reports/*.html
 reports/image_metadata.csv
+
+# screenshotovi i privremene slike u root-u
+Screenshot*.png
+*.screenshot.png
+primeri/

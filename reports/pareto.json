@@ -1,0 +1,55 @@
+[
+  {
+    "arch": "efficientnet_b0",
+    "timm_name": "efficientnet_b0.ra4_e3600_r224_in1k",
+    "params_M": 4.2,
+    "img": 224,
+    "p50_ms": 10.4,
+    "p95_ms": 10.7,
+    "test_top1": 0.9033041596412659,
+    "test_top3": 0.9815354943275452,
+    "test_top1_ci95": 0.013530566092150087,
+    "test_ece_calibrated": 0.01259869312463862,
+    "temperature": 0.6759335398674011,
+    "within_budget": true,
+    "dominated_by": [],
+    "on_pareto": true
+  },
+  {
+    "arch": "mobilenetv4_conv_medium",
+    "timm_name": "mobilenetv4_conv_medium.e500_r256_in1k",
+    "params_M": 8.6,
+    "img": 256,
+    "p50_ms": 12.8,
+    "p95_ms": 13.1,
+    "test_top1": 0.9023323655128479,
+    "test_top3": 0.9795918464660645,
+    "test_top1_ci95": 0.01358559677057114,
+    "test_ece_calibrated": 0.02267985871338638,
+    "temperature": 0.7707973718643188,
+    "within_budget": true,
+    "dominated_by": [
+      "efficientnet_b0"
+    ],
+    "on_pareto": false
+  },
+  {
+    "arch": "convnext_tiny",
+    "timm_name": "convnext_tiny.dinov3_lvd1689m",
+    "params_M": 27.9,
+    "img": 224,
+    "p50_ms": 67.0,
+    "p95_ms": 68.8,
+    "test_top1": 0.8474246859550476,
+    "test_top3": 0.9650145769119263,
+    "test_top1_ci95": 0.01618186092352336,
+    "test_ece_calibrated": 0.022003900371962537,
+    "temperature": 0.6682526469230652,
+    "within_budget": true,
+    "dominated_by": [
+      "efficientnet_b0",
+      "mobilenetv4_conv_medium"
+    ],
+    "on_pareto": false
+  }
+]

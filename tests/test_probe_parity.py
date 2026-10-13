@@ -88,3 +88,43 @@ def test_l2_normalize_is_idempotent():
     once = l2_normalize(e)
     np.testing.assert_allclose(once, l2_normalize(once), rtol=1e-6)
     np.testing.assert_allclose(np.linalg.norm(once, axis=1), 1.0, rtol=1e-6)
+
+
+def test_fold_standardization_is_exact():
+    """Standardizacija uracunata u tezine mora dati ISTE logite kao eksplicitno
+    standardizovanje ulaza. Na ovome stoji ceo linear-probe deployment put."""
+    import torch.nn as nn
+
+    from dogbreeds.probe import fold_standardization
+
+    rng = np.random.default_rng(0)
+    D, C, N = 32, 5, 11
+    X = (rng.normal(size=(N, D)) * 37 + 12).astype(np.float32)   # proizvoljna skala
+    mu, sd = X.mean(0).astype(np.float32), np.maximum(X.std(0), 1e-6).astype(np.float32)
+
+    torch.manual_seed(0)
+    head = nn.Linear(D, C).eval()
+    with torch.no_grad():
+        ref = head(torch.from_numpy((X - mu) / sd))          # standardizovan ulaz
+    W, b = fold_standardization(head, mu, sd)
+    got = torch.nn.functional.linear(torch.from_numpy(X), W, b)  # sirov ulaz
+    assert (ref - got).abs().max().item() < 1e-3
+
+
+def test_train_head_exports_weights_for_raw_features():
+    """Posle train_head(standardize=True), apply_head nad SIROVIM feature-ima mora
+    reprodukovati tacnost izmerenu tokom treninga."""
+    from dogbreeds.probe import apply_head, train_head
+
+    rng = np.random.default_rng(3)
+    D, C = 24, 4
+    centers = rng.normal(size=(C, D)) * 3
+    y = np.repeat(np.arange(C), 40).astype(np.int64)
+    X = (centers[y] + rng.normal(size=(len(y), D))).astype(np.float32) * 25 + 7
+    yv = y.copy()
+    Xv = (centers[yv] + rng.normal(size=(len(yv), D))).astype(np.float32) * 25 + 7
+
+    head, best, _ = train_head(X, y, Xv, yv, num_classes=C, epochs=25, verbose=False)
+    acc = (apply_head(head, Xv).argmax(1).numpy() == yv).mean()
+    assert abs(acc - best["top1"]) < 1e-6, f"{acc} != {best['top1']}"
+    assert acc > 0.9

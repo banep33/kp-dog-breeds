@@ -60,16 +60,69 @@ def align_splits(ids: list[str], splits_dir: str | Path, classes: list[str]
 
 # ---------------------------------------------------------------- trening glave
 
+def feature_stats(X: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Srednja vrednost i standardna devijacija po dimenziji, SAMO sa train skupa."""
+    mu = X.mean(axis=0)
+    sd = X.std(axis=0)
+    sd = np.maximum(sd, 1e-6)          # mrtve dimenzije (sd=0) ne smeju da dele nulom
+    return mu.astype(np.float32), sd.astype(np.float32)
+
+
+def fold_standardization(head: nn.Linear, mu: np.ndarray, sd: np.ndarray
+                         ) -> tuple[torch.Tensor, torch.Tensor]:
+    """Uračunaj standardizaciju u težine, da model u produkciji radi nad SIROVIM feature-ima.
+
+        W·z + b  gde je  z = (e − μ)/σ
+      = W·(e − μ)/σ + b
+      = (W/σ)·e + (b − (W/σ)·μ)
+
+    Dakle treniramo nad dobro uslovljenim ulazom (isti learning rate radi za sve
+    backbone-e bez obzira na skalu njihovih feature-a), a izvozimo OBIČAN Linear nad
+    sirovim izlazom backbone-a. Bez dodatnih slojeva, bez neslaganja trening/produkcija.
+    """
+    sd_t = torch.from_numpy(sd)
+    mu_t = torch.from_numpy(mu)
+    W_eff = head.weight.detach() / sd_t                 # [C, D] / [D] -> po kolonama
+    b_eff = head.bias.detach() - W_eff @ mu_t
+    return W_eff, b_eff
+
+
+def effective_weights(head: nn.Linear) -> tuple[torch.Tensor, torch.Tensor]:
+    """Tezine glave izrazene nad SIROVIM feature-ima (standardizacija uracunata)."""
+    return fold_standardization(head, head.feature_mean, head.feature_std)
+
+
+def apply_head(head: nn.Linear, X: np.ndarray) -> torch.Tensor:
+    """Logiti za sirove feature-e, kroz uracunate tezine. Namerno NE radimo
+    head((X-mu)/sd): ovako svaki broj koji prijavimo dolazi iz iste matrice
+    koja zavrsi u checkpoint-u i u ONNX-u."""
+    W, b = effective_weights(head)
+    with torch.no_grad():
+        return torch.nn.functional.linear(torch.from_numpy(np.ascontiguousarray(X)), W, b)
+
+
 def train_head(
     X: np.ndarray, y: np.ndarray, Xv: np.ndarray, yv: np.ndarray,
     num_classes: int, epochs: int = 60, lr: float = 1e-2, weight_decay: float = 1e-4,
     label_smoothing: float = 0.05, batch_size: int = 512, seed: int = 42, verbose: bool = True,
+    standardize: bool = True,
 ) -> tuple[nn.Linear, dict, list[dict]]:
-    """Jedan Linear sloj (768 -> 120), AdamW + cosine. Namerno isti recept kao u `train.py`
-    da poređenje bude pošteno — razlika je samo u tome što je backbone zamrznut."""
+    """Jedan Linear sloj (D -> 120), AdamW + cosine. Namerno isti recept kao u `train.py`
+    da poređenje bude pošteno — razlika je samo u tome što je backbone zamrznut.
+
+    standardize=True poravnava skalu feature-a između backbone-a, pa jedan isti
+    learning rate važi za sve; inače bi poređenje merilo koliko nam LR odgovara
+    kom modelu, a ne kvalitet reprezentacija. Statistike se računaju SAMO na train
+    skupu i kasnije se uračunaju u težine (fold_standardization)."""
     torch.manual_seed(seed)
-    Xt, yt = torch.from_numpy(X), torch.from_numpy(y)
-    Xvt, yvt = torch.from_numpy(Xv), torch.from_numpy(yv)
+    if standardize:
+        mu, sd = feature_stats(X)
+        X, Xv = (X - mu) / sd, (Xv - mu) / sd
+    else:
+        mu = np.zeros(X.shape[1], dtype=np.float32)
+        sd = np.ones(X.shape[1], dtype=np.float32)
+    Xt, yt = torch.from_numpy(np.ascontiguousarray(X)), torch.from_numpy(y)
+    Xvt, yvt = torch.from_numpy(np.ascontiguousarray(Xv)), torch.from_numpy(yv)
 
     head = nn.Linear(X.shape[1], num_classes)
     opt = torch.optim.AdamW(head.parameters(), lr=lr, weight_decay=weight_decay)
@@ -106,7 +159,9 @@ def train_head(
                   f"val top1 {m['top1']:.4f} top3 {m['top3']:.4f}")
 
     head.load_state_dict(best_state)
-    return head.eval(), best, history
+    head.eval()
+    head.feature_mean, head.feature_std = mu, sd   # nosi ih do upisa u checkpoint
+    return head, best, history
 
 
 # ---------------------------------------------------------------- checkpoint
@@ -122,8 +177,11 @@ def save_as_timm_checkpoint(head: nn.Linear, model_name: str, classes: list[str]
     sd = model.state_dict()
     assert sd[f"{prefix}.weight"].shape == head.weight.shape, (
         f"glava {tuple(head.weight.shape)} != timm classifier {tuple(sd[f'{prefix}.weight'].shape)}")
-    sd[f"{prefix}.weight"] = head.weight.detach().clone()
-    sd[f"{prefix}.bias"] = head.bias.detach().clone()
+    # Standardizacija se URACUNAVA u tezine -> `classifier` radi nad SIROVIM izlazom
+    # backbone-a, bez ijednog dodatnog sloja (vidi fold_standardization).
+    W_eff, b_eff = effective_weights(head)
+    sd[f"{prefix}.weight"] = W_eff.clone()
+    sd[f"{prefix}.bias"] = b_eff.clone()
 
     out_dir.mkdir(parents=True, exist_ok=True)
     ckpt_path = out_dir / "best.pt"
@@ -163,9 +221,34 @@ def verify_checkpoint_matches_probe(ckpt_path: Path, X: np.ndarray, head: nn.Lin
 
 # ---------------------------------------------------------------- jedan probe
 
+def select_lr(emb, s, num_classes, lr_grid, epochs, weight_decay, seed, verbose):
+    """Bira learning rate po VALIDACIONOM skupu, posebno za svaki backbone.
+
+    Zasto: feature-i razlicitih backbone-a imaju razlicitu skalu i uslovljenost, pa
+    jedan fiksni LR ne odgovara svima podjednako. Da ga ne biramo, Pareto bi merio
+    koliko nam je LR slucajno odgovarao kom modelu, a ne kvalitet reprezentacija.
+    Izbor ide ISKLJUCIVO preko val skupa -- test se ne dira dok se sve ne zakljuca."""
+    results = []
+    for lr in lr_grid:
+        head, best, hist = train_head(
+            emb[s["train_idx"]], s["train_y"], emb[s["val_idx"]], s["val_y"],
+            num_classes=num_classes, epochs=epochs, lr=lr,
+            weight_decay=weight_decay, seed=seed, verbose=False)
+        results.append({"lr": lr, "head": head, "best": best, "hist": hist})
+        if verbose:
+            print(f"    lr {lr:<8.4g} -> val top1 {best['top1']:.4f} top3 {best['top3']:.4f}")
+    win = max(results, key=lambda r: r["best"]["top1"])
+    if verbose:
+        print(f"    izabran lr = {win['lr']:g}")
+    return win["head"], win["best"], win["hist"], win["lr"], [
+        {"lr": r["lr"], "val_top1": r["best"]["top1"], "val_top3": r["best"]["top3"]}
+        for r in results]
+
+
 def run_probe(emb_prefix: str, splits_dir: str, model_name: str | None = None,
               out_dir: str | None = None, epochs: int = 60, lr: float = 1e-2,
-              weight_decay: float = 1e-4, seed: int = 42, verbose: bool = True) -> dict:
+              weight_decay: float = 1e-4, seed: int = 42, verbose: bool = True,
+              lr_grid: list[float] | None = None) -> dict:
     emb, ids, meta = load_emb(emb_prefix)
     model_name = model_name or meta["model"]
     classes = json.loads((Path(splits_dir) / "classes.json").read_text(encoding="utf-8"))
@@ -176,16 +259,20 @@ def run_probe(emb_prefix: str, splits_dir: str, model_name: str | None = None,
         print(f"    train {len(s['train_idx'])} | val {len(s['val_idx'])} | test {len(s['test_idx'])}")
 
     t0 = time.perf_counter()
-    head, best, history = train_head(
-        emb[s["train_idx"]], s["train_y"], emb[s["val_idx"]], s["val_y"],
-        num_classes=len(classes), epochs=epochs, lr=lr, weight_decay=weight_decay,
-        seed=seed, verbose=verbose)
+    lr_search = None
+    if lr_grid:
+        head, best, history, lr, lr_search = select_lr(
+            emb, s, len(classes), lr_grid, epochs, weight_decay, seed, verbose)
+    else:
+        head, best, history = train_head(
+            emb[s["train_idx"]], s["train_y"], emb[s["val_idx"]], s["val_y"],
+            num_classes=len(classes), epochs=epochs, lr=lr, weight_decay=weight_decay,
+            seed=seed, verbose=verbose)
     train_sec = time.perf_counter() - t0
 
     # kalibracija: temperatura se fituje na VAL, primenjuje na TEST (nikad obrnuto)
-    with torch.no_grad():
-        val_logits = head(torch.from_numpy(emb[s["val_idx"]]))
-        test_logits = head(torch.from_numpy(emb[s["test_idx"]]))
+    val_logits = apply_head(head, emb[s["val_idx"]])
+    test_logits = apply_head(head, emb[s["test_idx"]])
     val_y_t = torch.from_numpy(s["val_y"])
     test_y_t = torch.from_numpy(s["test_y"])
     T = fit_temperature(val_logits, val_y_t)
@@ -203,6 +290,9 @@ def run_probe(emb_prefix: str, splits_dir: str, model_name: str | None = None,
         "test_ece_calibrated": expected_calibration_error(test_probs_cal, s["test_y"]),
         "temperature": T,
         "best_epoch": best["epoch"],
+        "lr": lr,
+        "lr_search": lr_search,
+        "n_test": int(len(s["test_y"])),
         "head_train_seconds": round(train_sec, 1),
         "embed_img_per_sec_cpu": meta.get("img_per_sec"),
     }
@@ -247,6 +337,9 @@ def main() -> None:
     ap.add_argument("--lr", type=float, default=1e-2)
     ap.add_argument("--weight-decay", type=float, default=1e-4)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--lr-grid", type=float, nargs="*",
+                    default=[3e-3, 1e-2, 3e-2, 1e-1],
+                    help="LR se bira po val skupu; prazno = koristi --lr")
     ap.add_argument("--sweep", action="store_true", help="probe za sve kandidate -> Pareto tabela")
     ap.add_argument("--report", default="reports/probe_results.json")
     a = ap.parse_args()
@@ -260,18 +353,19 @@ def main() -> None:
             rows.append(run_probe(prefix, a.splits, name,
                                   out_dir=f"runs/probe_{name.split('.')[0]}",
                                   epochs=a.epochs, lr=a.lr, weight_decay=a.weight_decay,
-                                  seed=a.seed))
+                                  seed=a.seed, lr_grid=a.lr_grid))
         if not rows:
             raise SystemExit("nema ni jednog embeddinga — prvo pokreni dogbreeds.embed")
         df = pd.DataFrame(rows)
-        cols = ["model", "emb_dim", "val_top1", "val_top3", "test_top1", "test_top3",
+        cols = ["model", "emb_dim", "lr", "val_top1", "val_top3", "test_top1", "test_top3",
                 "test_ece", "test_ece_calibrated", "temperature"]
         print("\n" + df[cols].to_string(index=False, float_format=lambda v: f"{v:.4f}"))
         Path(a.report).parent.mkdir(parents=True, exist_ok=True)
         Path(a.report).write_text(json.dumps(rows, indent=2), encoding="utf-8")
         print(f"\n-> {a.report}")
     else:
-        run_probe(a.emb, a.splits, a.model, a.out, a.epochs, a.lr, a.weight_decay, a.seed)
+        run_probe(a.emb, a.splits, a.model, a.out, a.epochs, a.lr, a.weight_decay, a.seed,
+                  lr_grid=a.lr_grid)
 
 
 if __name__ == "__main__":
