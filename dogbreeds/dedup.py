@@ -77,13 +77,26 @@ def build_groups(pairs, n: int) -> np.ndarray:
 
 # ------------------------------------------------------------------ parovi
 
+def l2_normalize(emb: np.ndarray) -> np.ndarray:
+    """L2 normalizacija po redovima. Posle nje je skalarni proizvod = kosinusna sličnost.
+
+    Radimo je OVDE, a ne u dogbreeds.embed: ekstraktor vraća sirove feature (tačno one
+    koje timm prosleđuje svom classifier sloju), jer glava u dogbreeds.probe mora da uči
+    nad istim vektorima koje model vidi u produkciji. Kosinusna sličnost je potreba
+    isključivo deduplikacije, pa je i normalizacija njena odgovornost.
+    Idempotentna je — bezbedno je pozvati je i nad već normalizovanim ulazom."""
+    n = np.linalg.norm(emb, axis=1, keepdims=True)
+    return (emb / np.maximum(n, 1e-12)).astype(np.float32)
+
+
 def find_similar_pairs(emb: np.ndarray, min_sim: float = 0.85, block: int = 1024
                        ) -> tuple[pd.DataFrame, np.ndarray]:
     """Svi parovi (i < j) sa kosinusnom sličnošću >= min_sim + sličnost sa najbližim susedom.
 
-    Embeddinzi su L2-normalizovani, pa je `emb @ emb.T` matrica kosinusnih sličnosti.
+    Posle L2 normalizacije je `emb @ emb.T` matrica kosinusnih sličnosti.
     Celu matricu 20.580 x 20.580 ne pravimo odjednom (1.7 GB) -> idemo blok po blok.
     """
+    emb = l2_normalize(emb)
     n = emb.shape[0]
     nn_sim = np.full(n, -1.0, dtype=np.float32)
     nn_idx = np.zeros(n, dtype=np.int64)

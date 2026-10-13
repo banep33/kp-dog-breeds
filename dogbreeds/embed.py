@@ -51,12 +51,14 @@ class ImageOnlyDataset(Dataset):
         return self.transform(img), i
 
 
-def build_backbone(model_name: str, img_size: int | None = None, device: str = "cpu"):
-    """Vraća (model bez glave, data_config, dimenzija embeddinga)."""
+def build_backbone(model_name: str, img_size: int | None = None, device: str = "cpu",
+                   pretrained: bool = True):
+    """Vraća (model bez glave, data_config, transformacija).
+    pretrained=False koriste testovi (bez interneta, nasumične težine)."""
     import timm
     from timm.data import create_transform, resolve_data_config
 
-    model = timm.create_model(model_name, pretrained=True, num_classes=0).to(device).eval()
+    model = timm.create_model(model_name, pretrained=pretrained, num_classes=0).to(device).eval()
     dc = dict(resolve_data_config({}, model=model))
     if img_size:
         dc["input_size"] = (3, img_size, img_size)
@@ -74,14 +76,22 @@ def extract(
     device: str | None = None,
     img_size: int | None = None,
     log_every: int = 20,
+    normalize: bool = False,
+    pretrained: bool = True,
 ) -> tuple[np.ndarray, dict]:
-    """Vraća (embeddings [N, D] L2-normalizovani float32, meta dict).
+    """Vraća (embeddings [N, D] float32, meta dict) — SIROVE feature iz backbone-a.
 
-    L2 normalizacija je namerna: posle nje je skalarni proizvod = kosinusna sličnost,
-    pa deduplikacija postaje jedno matrično množenje.
+    VAŽNO: podrazumevano se NE normalizuje. Ovo su tačno oni vektori koje timm
+    prosleđuje svom `classifier` sloju, pa glava trenirana nad njima (dogbreeds.probe)
+    radi identično i kad se upiše nazad u pun model i izveze u ONNX.
+    Ranija verzija je normalizovala ovde -> glava je učila nad ê, a model je u produkciji
+    računao sa e (‖e‖ ≈ 100) => divlje naduvani logiti i besmislena kalibracija.
+
+    Normalizacija je briga POTROŠAČA: dogbreeds.dedup je radi sam, jer mu treba
+    kosinusna sličnost (posle L2 norme skalarni proizvod = kosinus).
     """
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
-    model, dc, transform = build_backbone(model_name, img_size, device)
+    model, dc, transform = build_backbone(model_name, img_size, device, pretrained)
     ds = ImageOnlyDataset(ids, images_dir, transform)
     dl = DataLoader(ds, batch_size=batch_size, shuffle=False, num_workers=num_workers,
                     pin_memory=device == "cuda")
@@ -94,7 +104,9 @@ def extract(
     for b, (x, idx) in enumerate(dl):
         with torch.autocast(device_type=device, enabled=device == "cuda"):
             z = model(x.to(device, non_blocking=True))
-        z = torch.nn.functional.normalize(z.float(), dim=1)
+        z = z.float()
+        if normalize:
+            z = torch.nn.functional.normalize(z, dim=1)
         if out is None:
             out = np.empty((len(ids), z.shape[1]), dtype=np.float32)
         out[idx.numpy()] = z.cpu().numpy()
@@ -111,6 +123,7 @@ def extract(
         "dim": int(out.shape[1]),
         "n": len(ids),
         "data_config": {k: (list(v) if isinstance(v, tuple) else v) for k, v in dc.items()},
+        "normalized": bool(normalize),
         "device": device,
         "seconds": round(time.perf_counter() - t0, 1),
         "img_per_sec": round(len(ids) / max(time.perf_counter() - t0, 1e-9), 1),
@@ -148,13 +161,15 @@ def main() -> None:
     ap.add_argument("--img-size", type=int, default=None)
     ap.add_argument("--limit", type=int, default=None, help="samo prvih N slika (za brzi test)")
     ap.add_argument("--log-every", type=int, default=20, help="ispis napretka svakih N batch-eva (0 = bez)")
+    ap.add_argument("--normalize", action="store_true",
+                    help="L2-normalizuj (ne treba: dedup normalizuje sam, probe trazi sirove)")
     a = ap.parse_args()
 
     df = pd.read_csv(a.labels)
     ids = df["id"].astype(str).tolist()[: a.limit]
     out = a.out or f"data/emb/{a.model.split('.')[0]}"
     emb, meta = extract(ids, a.images, a.model, a.batch_size, a.num_workers,
-                        img_size=a.img_size, log_every=a.log_every)
+                        img_size=a.img_size, log_every=a.log_every, normalize=a.normalize)
     meta["labels_csv"] = a.labels
     save(out, emb, ids, meta)
     if meta["failed_idx"]:

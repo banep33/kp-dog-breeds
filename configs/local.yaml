@@ -1,0 +1,14 @@
+# Lokalni rad na Windows-u (bez GPU-a): Stanford Dogs, 20.580 slika, 120 rasa.
+# Koristi labels_grouped.csv (kolona `group` iz dogbreeds.dedup) -> grupni split,
+# pa skoro-identicne slike nikad ne zavrse u razlicitim skupovima.
+base: baseline.yaml
+
+data:
+  labels_csv: data/raw/labels_grouped.csv
+  images_dir: data/raw/train
+  splits_dir: data/splits
+  num_workers: 4
+  batch_size: 32          # CPU: manji batch, manje RAM-a
+
+train:
+  amp: false              # AMP ima smisla samo na CUDA
