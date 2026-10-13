@@ -18,16 +18,19 @@ import pandas as pd
 URL = "http://vision.stanford.edu/aditya86/ImageNetDogs/images.tar"
 
 
-def convert(images_root: Path, out: Path) -> Path:
-    """images_root sadrži foldere tipa 'n02085620-Chihuahua'."""
+def convert(images_root: Path, out: Path, copy: bool = False) -> Path:
+    """images_root sadrži foldere tipa 'n02085620-Chihuahua'.
+    copy=True kad je izvor read-only (npr. /kaggle/input)."""
+    labels = out / "labels.csv"
+    if labels.exists():
+        return labels
     (out / "train").mkdir(parents=True, exist_ok=True)
     rows = []
     for d in sorted(p for p in images_root.iterdir() if p.is_dir()):
         breed = d.name.split("-", 1)[1].lower()  # 'n02085620-Chihuahua' -> 'chihuahua' (kao u Kaggle-u)
         for f in d.glob("*.jpg"):
-            shutil.move(str(f), out / "train" / f.name)
+            (shutil.copy2 if copy else shutil.move)(str(f), out / "train" / f.name)
             rows.append({"id": f.stem, "breed": breed})
-    labels = out / "labels.csv"
     pd.DataFrame(rows).to_csv(labels, index=False)
     print(f"{len(rows)} slika, {len({r['breed'] for r in rows})} rasa -> {labels}")
     return labels
