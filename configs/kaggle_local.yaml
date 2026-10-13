@@ -1,0 +1,21 @@
+# Lokalna kopija Kaggle "Dog Breed Identification" (10.222 slike, 120 rasa).
+#
+# Razlika u odnosu na configs/kaggle.yaml: ovaj je za podatke preuzete NA LAPTOP
+# (`kaggle competitions download`), dok kaggle.yaml gadja /kaggle/input unutar
+# Kaggle notebook-a.
+#
+# Zasto uopste oba dataseta: Kaggle set je tacno onaj iz teksta zadatka
+# ("preko 10.000 fotografija"), a Stanford Dogs (configs/local.yaml) je njegov
+# nadskup sa 20.580 slika istih 120 rasa. Isti kod radi nad oba, pa prijavljujemo
+# obe tabele -- Kaggle zbog vernosti zadatku, Stanford jer vise podataka = bolji model.
+base: baseline.yaml
+
+data:
+  labels_csv: data/kaggle/labels_grouped.csv   # posle dogbreeds.dedup
+  images_dir: data/kaggle/train
+  splits_dir: data/kaggle/splits
+  num_workers: 2                 # ogranicen paralelizam (termika laptopa)
+  batch_size: 32
+
+train:
+  amp: false                     # AMP ima smisla samo na CUDA

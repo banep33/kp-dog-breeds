@@ -30,3 +30,4 @@ reports/image_metadata.csv
 Screenshot*.png
 *.screenshot.png
 primeri/
+data/kaggle/
