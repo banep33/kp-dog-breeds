@@ -31,3 +31,6 @@ Screenshot*.png
 *.screenshot.png
 primeri/
 data/kaggle/
+
+# licne beleske i handoff dokumenti (ne idu na git)
+beleske/
