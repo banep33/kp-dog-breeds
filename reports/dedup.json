@@ -1,0 +1,1240 @@
+{
+  "info": {
+    "n_images": 20580,
+    "n_classes": 120,
+    "model": "convnext_tiny.dinov3_lvd1689m",
+    "dim": 768,
+    "nn_sim_median": 0.8443666100502014,
+    "nn_sim_p99": 0.9915487170219421
+  },
+  "sweep": [
+    {
+      "threshold": 0.85,
+      "pairs": 42285,
+      "groups_total": 11635,
+      "groups_with_dupes": 734,
+      "images_in_dupe_groups": 9679,
+      "redundant_images": 8945,
+      "largest_group": 1713
+    },
+    {
+      "threshold": 0.9,
+      "pairs": 6881,
+      "groups_total": 17482,
+      "groups_with_dupes": 882,
+      "images_in_dupe_groups": 3980,
+      "redundant_images": 3098,
+      "largest_group": 166
+    },
+    {
+      "threshold": 0.93,
+      "pairs": 1543,
+      "groups_total": 19527,
+      "groups_with_dupes": 556,
+      "images_in_dupe_groups": 1609,
+      "redundant_images": 1053,
+      "largest_group": 37
+    },
+    {
+      "threshold": 0.95,
+      "pairs": 540,
+      "groups_total": 20119,
+      "groups_with_dupes": 331,
+      "images_in_dupe_groups": 792,
+      "redundant_images": 461,
+      "largest_group": 16
+    },
+    {
+      "threshold": 0.97,
+      "pairs": 217,
+      "groups_total": 20373,
+      "groups_with_dupes": 193,
+      "images_in_dupe_groups": 400,
+      "redundant_images": 207,
+      "largest_group": 4
+    },
+    {
+      "threshold": 0.99,
+      "pairs": 104,
+      "groups_total": 20476,
+      "groups_with_dupes": 104,
+      "images_in_dupe_groups": 208,
+      "redundant_images": 104,
+      "largest_group": 2
+    }
+  ],
+  "top_pairs": [
+    {
+      "i": 19013,
+      "j": 19080,
+      "sim": 1.0000004768371582,
+      "id_i": "n02112706_1202",
+      "id_j": "n02112706_2161",
+      "breed_i": "brabancon_griffon",
+      "breed_j": "brabancon_griffon"
+    },
+    {
+      "i": 6045,
+      "j": 6119,
+      "sim": 1.0000003576278687,
+      "id_i": "n02093991_2923",
+      "id_j": "n02093991_4670",
+      "breed_i": "irish_terrier",
+      "breed_j": "irish_terrier"
+    },
+    {
+      "i": 6852,
+      "j": 7049,
+      "sim": 1.0000003576278687,
+      "id_i": "n02095570_1575",
+      "id_j": "n02095889_1582",
+      "breed_i": "lakeland_terrier",
+      "breed_j": "sealyham_terrier"
+    },
+    {
+      "i": 15159,
+      "j": 15265,
+      "sim": 1.000000238418579,
+      "id_i": "n02107683_5397",
+      "id_j": "n02107908_3531",
+      "breed_i": "bernese_mountain_dog",
+      "breed_j": "appenzeller"
+    },
+    {
+      "i": 9112,
+      "j": 9166,
+      "sim": 1.000000238418579,
+      "id_i": "n02097658_4201",
+      "id_j": "n02097658_8018",
+      "breed_i": "silky_terrier",
+      "breed_j": "silky_terrier"
+    },
+    {
+      "i": 5257,
+      "j": 5435,
+      "sim": 1.000000238418579,
+      "id_i": "n02093256_6177",
+      "id_j": "n02093428_8454",
+      "breed_i": "staffordshire_bullterrier",
+      "breed_j": "american_staffordshire_terrier"
+    },
+    {
+      "i": 9916,
+      "j": 9974,
+      "sim": 1.000000238418579,
+      "id_i": "n02099429_2263",
+      "id_j": "n02099429_3513",
+      "breed_i": "curly-coated_retriever",
+      "breed_j": "curly-coated_retriever"
+    },
+    {
+      "i": 19679,
+      "j": 19850,
+      "sim": 1.000000238418579,
+      "id_i": "n02113712_230",
+      "id_j": "n02113799_254",
+      "breed_i": "miniature_poodle",
+      "breed_j": "standard_poodle"
+    },
+    {
+      "i": 19519,
+      "j": 19655,
+      "sim": 1.000000238418579,
+      "id_i": "n02113624_2244",
+      "id_j": "n02113712_1546",
+      "breed_i": "toy_poodle",
+      "breed_j": "miniature_poodle"
+    },
+    {
+      "i": 20324,
+      "j": 20367,
+      "sim": 1.0000001192092896,
+      "id_i": "n02115913_262",
+      "id_j": "n02115913_4032",
+      "breed_i": "dhole",
+      "breed_j": "dhole"
+    },
+    {
+      "i": 20373,
+      "j": 20399,
+      "sim": 1.0000001192092896,
+      "id_i": "n02115913_4117",
+      "id_j": "n02115913_564",
+      "breed_i": "dhole",
+      "breed_j": "dhole"
+    },
+    {
+      "i": 5921,
+      "j": 5925,
+      "sim": 1.0000001192092896,
+      "id_i": "n02093859_3209",
+      "id_j": "n02093859_324",
+      "breed_i": "kerry_blue_terrier",
+      "breed_j": "kerry_blue_terrier"
+    },
+    {
+      "i": 5984,
+      "j": 6820,
+      "sim": 1.0000001192092896,
+      "id_i": "n02093991_114",
+      "id_j": "n02095314_80",
+      "breed_i": "irish_terrier",
+      "breed_j": "wire-haired_fox_terrier"
+    },
+    {
+      "i": 20045,
+      "j": 20086,
+      "sim": 1.0000001192092896,
+      "id_i": "n02113978_3178",
+      "id_j": "n02113978_530",
+      "breed_i": "mexican_hairless",
+      "breed_j": "mexican_hairless"
+    },
+    {
+      "i": 4804,
+      "j": 4865,
+      "sim": 1.0000001192092896,
+      "id_i": "n02092002_1767",
+      "id_j": "n02092002_4745",
+      "breed_i": "scottish_deerhound",
+      "breed_j": "scottish_deerhound"
+    },
+    {
+      "i": 4568,
+      "j": 4690,
+      "sim": 1.0000001192092896,
+      "id_i": "n02091831_13767",
+      "id_j": "n02091831_6323",
+      "breed_i": "saluki",
+      "breed_j": "saluki"
+    },
+    {
+      "i": 12056,
+      "j": 12071,
+      "sim": 1.0000001192092896,
+      "id_i": "n02102480_2041",
+      "id_j": "n02102480_3436",
+      "breed_i": "sussex_spaniel",
+      "breed_j": "sussex_spaniel"
+    },
+    {
+      "i": 16568,
+      "j": 16914,
+      "sim": 1.0000001192092896,
+      "id_i": "n02109961_2317",
+      "id_j": "n02110185_1614",
+      "breed_i": "eskimo_dog",
+      "breed_j": "siberian_husky"
+    },
+    {
+      "i": 13880,
+      "j": 13964,
+      "sim": 1.0000001192092896,
+      "id_i": "n02106030_873",
+      "id_j": "n02106166_346",
+      "breed_i": "collie",
+      "breed_j": "border_collie"
+    },
+    {
+      "i": 19024,
+      "j": 19084,
+      "sim": 1.0000001192092896,
+      "id_i": "n02112706_1379",
+      "id_j": "n02112706_2191",
+      "breed_i": "brabancon_griffon",
+      "breed_j": "brabancon_griffon"
+    },
+    {
+      "i": 12544,
+      "j": 12605,
+      "sim": 1.0000001192092896,
+      "id_i": "n02104365_5740",
+      "id_j": "n02104365_7953",
+      "breed_i": "schipperke",
+      "breed_j": "schipperke"
+    },
+    {
+      "i": 19961,
+      "j": 20094,
+      "sim": 1.0000001192092896,
+      "id_i": "n02113978_1323",
+      "id_j": "n02113978_737",
+      "breed_i": "mexican_hairless",
+      "breed_j": "mexican_hairless"
+    },
+    {
+      "i": 8337,
+      "j": 8634,
+      "sim": 1.0000001192092896,
+      "id_i": "n02097047_951",
+      "id_j": "n02097209_583",
+      "breed_i": "miniature_schnauzer",
+      "breed_j": "standard_schnauzer"
+    },
+    {
+      "i": 4881,
+      "j": 4882,
+      "sim": 1.0000001192092896,
+      "id_i": "n02092002_5504",
+      "id_j": "n02092002_5557",
+      "breed_i": "scottish_deerhound",
+      "breed_j": "scottish_deerhound"
+    },
+    {
+      "i": 8485,
+      "j": 8635,
+      "sim": 1.0000001192092896,
+      "id_i": "n02097130_857",
+      "id_j": "n02097209_585",
+      "breed_i": "giant_schnauzer",
+      "breed_j": "standard_schnauzer"
+    },
+    {
+      "i": 969,
+      "j": 1114,
+      "sim": 1.0,
+      "id_i": "n02086646_1445",
+      "id_j": "n02086646_422",
+      "breed_i": "blenheim_spaniel",
+      "breed_j": "blenheim_spaniel"
+    },
+    {
+      "i": 13850,
+      "j": 13887,
+      "sim": 1.0,
+      "id_i": "n02106030_2522",
+      "id_j": "n02106166_1031",
+      "breed_i": "collie",
+      "breed_j": "border_collie"
+    },
+    {
+      "i": 19953,
+      "j": 20056,
+      "sim": 1.0,
+      "id_i": "n02113978_1069",
+      "id_j": "n02113978_3474",
+      "breed_i": "mexican_hairless",
+      "breed_j": "mexican_hairless"
+    },
+    {
+      "i": 12637,
+      "j": 12662,
+      "sim": 1.0,
+      "id_i": "n02104365_9552",
+      "id_j": "n02105056_2194",
+      "breed_i": "schipperke",
+      "breed_j": "groenendael"
+    },
+    {
+      "i": 13734,
+      "j": 13975,
+      "sim": 1.0,
+      "id_i": "n02106030_10021",
+      "id_j": "n02106166_4107",
+      "breed_i": "collie",
+      "breed_j": "border_collie"
+    },
+    {
+      "i": 12814,
+      "j": 12895,
+      "sim": 1.0,
+      "id_i": "n02105162_2079",
+      "id_j": "n02105162_6449",
+      "breed_i": "malinois",
+      "breed_j": "malinois"
+    },
+    {
+      "i": 8678,
+      "j": 9517,
+      "sim": 1.0,
+      "id_i": "n02097298_2083",
+      "id_j": "n02098286_830",
+      "breed_i": "scotch_terrier",
+      "breed_j": "west_highland_white_terrier"
+    },
+    {
+      "i": 20374,
+      "j": 20406,
+      "sim": 1.0,
+      "id_i": "n02115913_4119",
+      "id_j": "n02115913_750",
+      "breed_i": "dhole",
+      "breed_j": "dhole"
+    },
+    {
+      "i": 20154,
+      "j": 20405,
+      "sim": 1.0,
+      "id_i": "n02115641_2440",
+      "id_j": "n02115913_739",
+      "breed_i": "dingo",
+      "breed_j": "dhole"
+    },
+    {
+      "i": 15202,
+      "j": 15290,
+      "sim": 1.0,
+      "id_i": "n02107683_71",
+      "id_j": "n02107908_47",
+      "breed_i": "bernese_mountain_dog",
+      "breed_j": "appenzeller"
+    },
+    {
+      "i": 5499,
+      "j": 5587,
+      "sim": 1.0,
+      "id_i": "n02093647_1766",
+      "id_j": "n02093647_3277",
+      "breed_i": "bedlington_terrier",
+      "breed_j": "bedlington_terrier"
+    },
+    {
+      "i": 19060,
+      "j": 19071,
+      "sim": 1.0,
+      "id_i": "n02112706_1882",
+      "id_j": "n02112706_2070",
+      "breed_i": "brabancon_griffon",
+      "breed_j": "brabancon_griffon"
+    },
+    {
+      "i": 13809,
+      "j": 14007,
+      "sim": 1.0,
+      "id_i": "n02106030_16338",
+      "id_j": "n02106166_6710",
+      "breed_i": "collie",
+      "breed_j": "border_collie"
+    },
+    {
+      "i": 2606,
+      "j": 2613,
+      "sim": 1.0,
+      "id_i": "n02088632_4334",
+      "id_j": "n02088632_4584",
+      "breed_i": "bluetick",
+      "breed_j": "bluetick"
+    },
+    {
+      "i": 7067,
+      "j": 7078,
+      "sim": 1.0,
+      "id_i": "n02095889_2134",
+      "id_j": "n02095889_2471",
+      "breed_i": "sealyham_terrier",
+      "breed_j": "sealyham_terrier"
+    },
+    {
+      "i": 12245,
+      "j": 12300,
+      "sim": 1.0,
+      "id_i": "n02102973_2645",
+      "id_j": "n02102973_4469",
+      "breed_i": "irish_water_spaniel",
+      "breed_j": "irish_water_spaniel"
+    },
+    {
+      "i": 12534,
+      "j": 12543,
+      "sim": 1.0,
+      "id_i": "n02104365_4190",
+      "id_j": "n02104365_5670",
+      "breed_i": "schipperke",
+      "breed_j": "schipperke"
+    },
+    {
+      "i": 6753,
+      "j": 6901,
+      "sim": 1.0,
+      "id_i": "n02095314_2754",
+      "id_j": "n02095570_3101",
+      "breed_i": "wire-haired_fox_terrier",
+      "breed_j": "lakeland_terrier"
+    },
+    {
+      "i": 20266,
+      "j": 20301,
+      "sim": 1.0,
+      "id_i": "n02115913_1142",
+      "id_j": "n02115913_2029",
+      "breed_i": "dhole",
+      "breed_j": "dhole"
+    },
+    {
+      "i": 253,
+      "j": 1033,
+      "sim": 1.0,
+      "id_i": "n02085782_313",
+      "id_j": "n02086646_280",
+      "breed_i": "japanese_spaniel",
+      "breed_j": "blenheim_spaniel"
+    },
+    {
+      "i": 6794,
+      "j": 7010,
+      "sim": 1.0,
+      "id_i": "n02095314_3509",
+      "id_j": "n02095570_6443",
+      "breed_i": "wire-haired_fox_terrier",
+      "breed_j": "lakeland_terrier"
+    },
+    {
+      "i": 6776,
+      "j": 6778,
+      "sim": 1.0,
+      "id_i": "n02095314_3189",
+      "id_j": "n02095314_3227",
+      "breed_i": "wire-haired_fox_terrier",
+      "breed_j": "wire-haired_fox_terrier"
+    },
+    {
+      "i": 19129,
+      "j": 19142,
+      "sim": 1.0,
+      "id_i": "n02112706_62",
+      "id_j": "n02112706_866",
+      "breed_i": "brabancon_griffon",
+      "breed_j": "brabancon_griffon"
+    },
+    {
+      "i": 4821,
+      "j": 4903,
+      "sim": 1.0,
+      "id_i": "n02092002_2448",
+      "id_j": "n02092002_6503",
+      "breed_i": "scottish_deerhound",
+      "breed_j": "scottish_deerhound"
+    },
+    {
+      "i": 6150,
+      "j": 6496,
+      "sim": 0.9999999403953552,
+      "id_i": "n02094114_1020",
+      "id_j": "n02094258_880",
+      "breed_i": "norfolk_terrier",
+      "breed_j": "norwich_terrier"
+    }
+  ],
+  "cross_label_suspects": [
+    {
+      "i": 6852,
+      "j": 7049,
+      "sim": 1.0000003576278687,
+      "breed_i": "lakeland_terrier",
+      "breed_j": "sealyham_terrier",
+      "id_i": "n02095570_1575",
+      "id_j": "n02095889_1582"
+    },
+    {
+      "i": 15159,
+      "j": 15265,
+      "sim": 1.000000238418579,
+      "breed_i": "bernese_mountain_dog",
+      "breed_j": "appenzeller",
+      "id_i": "n02107683_5397",
+      "id_j": "n02107908_3531"
+    },
+    {
+      "i": 5257,
+      "j": 5435,
+      "sim": 1.000000238418579,
+      "breed_i": "staffordshire_bullterrier",
+      "breed_j": "american_staffordshire_terrier",
+      "id_i": "n02093256_6177",
+      "id_j": "n02093428_8454"
+    },
+    {
+      "i": 19679,
+      "j": 19850,
+      "sim": 1.000000238418579,
+      "breed_i": "miniature_poodle",
+      "breed_j": "standard_poodle",
+      "id_i": "n02113712_230",
+      "id_j": "n02113799_254"
+    },
+    {
+      "i": 19519,
+      "j": 19655,
+      "sim": 1.000000238418579,
+      "breed_i": "toy_poodle",
+      "breed_j": "miniature_poodle",
+      "id_i": "n02113624_2244",
+      "id_j": "n02113712_1546"
+    },
+    {
+      "i": 5984,
+      "j": 6820,
+      "sim": 1.0000001192092896,
+      "breed_i": "irish_terrier",
+      "breed_j": "wire-haired_fox_terrier",
+      "id_i": "n02093991_114",
+      "id_j": "n02095314_80"
+    },
+    {
+      "i": 16568,
+      "j": 16914,
+      "sim": 1.0000001192092896,
+      "breed_i": "eskimo_dog",
+      "breed_j": "siberian_husky",
+      "id_i": "n02109961_2317",
+      "id_j": "n02110185_1614"
+    },
+    {
+      "i": 13880,
+      "j": 13964,
+      "sim": 1.0000001192092896,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_873",
+      "id_j": "n02106166_346"
+    },
+    {
+      "i": 8337,
+      "j": 8634,
+      "sim": 1.0000001192092896,
+      "breed_i": "miniature_schnauzer",
+      "breed_j": "standard_schnauzer",
+      "id_i": "n02097047_951",
+      "id_j": "n02097209_583"
+    },
+    {
+      "i": 8485,
+      "j": 8635,
+      "sim": 1.0000001192092896,
+      "breed_i": "giant_schnauzer",
+      "breed_j": "standard_schnauzer",
+      "id_i": "n02097130_857",
+      "id_j": "n02097209_585"
+    },
+    {
+      "i": 13850,
+      "j": 13887,
+      "sim": 1.0,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_2522",
+      "id_j": "n02106166_1031"
+    },
+    {
+      "i": 12637,
+      "j": 12662,
+      "sim": 1.0,
+      "breed_i": "schipperke",
+      "breed_j": "groenendael",
+      "id_i": "n02104365_9552",
+      "id_j": "n02105056_2194"
+    },
+    {
+      "i": 13734,
+      "j": 13975,
+      "sim": 1.0,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_10021",
+      "id_j": "n02106166_4107"
+    },
+    {
+      "i": 8678,
+      "j": 9517,
+      "sim": 1.0,
+      "breed_i": "scotch_terrier",
+      "breed_j": "west_highland_white_terrier",
+      "id_i": "n02097298_2083",
+      "id_j": "n02098286_830"
+    },
+    {
+      "i": 20154,
+      "j": 20405,
+      "sim": 1.0,
+      "breed_i": "dingo",
+      "breed_j": "dhole",
+      "id_i": "n02115641_2440",
+      "id_j": "n02115913_739"
+    },
+    {
+      "i": 15202,
+      "j": 15290,
+      "sim": 1.0,
+      "breed_i": "bernese_mountain_dog",
+      "breed_j": "appenzeller",
+      "id_i": "n02107683_71",
+      "id_j": "n02107908_47"
+    },
+    {
+      "i": 13809,
+      "j": 14007,
+      "sim": 1.0,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_16338",
+      "id_j": "n02106166_6710"
+    },
+    {
+      "i": 6753,
+      "j": 6901,
+      "sim": 1.0,
+      "breed_i": "wire-haired_fox_terrier",
+      "breed_j": "lakeland_terrier",
+      "id_i": "n02095314_2754",
+      "id_j": "n02095570_3101"
+    },
+    {
+      "i": 253,
+      "j": 1033,
+      "sim": 1.0,
+      "breed_i": "japanese_spaniel",
+      "breed_j": "blenheim_spaniel",
+      "id_i": "n02085782_313",
+      "id_j": "n02086646_280"
+    },
+    {
+      "i": 6794,
+      "j": 7010,
+      "sim": 1.0,
+      "breed_i": "wire-haired_fox_terrier",
+      "breed_j": "lakeland_terrier",
+      "id_i": "n02095314_3509",
+      "id_j": "n02095570_6443"
+    },
+    {
+      "i": 6150,
+      "j": 6496,
+      "sim": 0.9999999403953552,
+      "breed_i": "norfolk_terrier",
+      "breed_j": "norwich_terrier",
+      "id_i": "n02094114_1020",
+      "id_j": "n02094258_880"
+    },
+    {
+      "i": 6765,
+      "j": 6982,
+      "sim": 0.9999999403953552,
+      "breed_i": "wire-haired_fox_terrier",
+      "breed_j": "lakeland_terrier",
+      "id_i": "n02095314_2964",
+      "id_j": "n02095570_5404"
+    },
+    {
+      "i": 16627,
+      "j": 16943,
+      "sim": 0.9999999403953552,
+      "breed_i": "eskimo_dog",
+      "breed_j": "siberian_husky",
+      "id_i": "n02109961_5924",
+      "id_j": "n02110185_4115"
+    },
+    {
+      "i": 308,
+      "j": 1142,
+      "sim": 0.9999999403953552,
+      "breed_i": "japanese_spaniel",
+      "breed_j": "papillon",
+      "id_i": "n02085782_50",
+      "id_j": "n02086910_103"
+    },
+    {
+      "i": 6184,
+      "j": 6349,
+      "sim": 0.9999998807907104,
+      "breed_i": "norfolk_terrier",
+      "breed_j": "norwich_terrier",
+      "id_i": "n02094114_1696",
+      "id_j": "n02094258_1408"
+    },
+    {
+      "i": 5217,
+      "j": 5414,
+      "sim": 0.9999998807907104,
+      "breed_i": "staffordshire_bullterrier",
+      "breed_j": "american_staffordshire_terrier",
+      "id_i": "n02093256_4090",
+      "id_j": "n02093428_5635"
+    },
+    {
+      "i": 19506,
+      "j": 19646,
+      "sim": 0.9999998807907104,
+      "breed_i": "toy_poodle",
+      "breed_j": "miniature_poodle",
+      "id_i": "n02113624_1804",
+      "id_j": "n02113712_1252"
+    },
+    {
+      "i": 5252,
+      "j": 5319,
+      "sim": 0.9999998807907104,
+      "breed_i": "staffordshire_bullterrier",
+      "breed_j": "american_staffordshire_terrier",
+      "id_i": "n02093256_5988",
+      "id_j": "n02093428_1378"
+    },
+    {
+      "i": 194,
+      "j": 986,
+      "sim": 0.9999998807907104,
+      "breed_i": "japanese_spaniel",
+      "breed_j": "blenheim_spaniel",
+      "id_i": "n02085782_186",
+      "id_j": "n02086646_172"
+    },
+    {
+      "i": 13780,
+      "j": 14001,
+      "sim": 0.9999998807907104,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_15829",
+      "id_j": "n02106166_6512"
+    },
+    {
+      "i": 13758,
+      "j": 13997,
+      "sim": 0.9999998807907104,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_14811",
+      "id_j": "n02106166_6084"
+    },
+    {
+      "i": 829,
+      "j": 8969,
+      "sim": 0.9999998807907104,
+      "breed_i": "shih-tzu",
+      "breed_j": "tibetan_terrier",
+      "id_i": "n02086240_3921",
+      "id_j": "n02097474_7300"
+    },
+    {
+      "i": 8908,
+      "j": 9268,
+      "sim": 0.9999998807907104,
+      "breed_i": "tibetan_terrier",
+      "breed_j": "soft-coated_wheaten_terrier",
+      "id_i": "n02097474_4907",
+      "id_j": "n02098105_2456"
+    },
+    {
+      "i": 19520,
+      "j": 19657,
+      "sim": 0.9999998211860657,
+      "breed_i": "toy_poodle",
+      "breed_j": "miniature_poodle",
+      "id_i": "n02113624_2258",
+      "id_j": "n02113712_1558"
+    },
+    {
+      "i": 2389,
+      "j": 3176,
+      "sim": 0.9999998211860657,
+      "breed_i": "bloodhound",
+      "breed_j": "redbone",
+      "id_i": "n02088466_7462",
+      "id_j": "n02090379_3300"
+    },
+    {
+      "i": 274,
+      "j": 11684,
+      "sim": 0.9999998211860657,
+      "breed_i": "japanese_spaniel",
+      "breed_j": "english_springer",
+      "id_i": "n02085782_381",
+      "id_j": "n02102040_639"
+    },
+    {
+      "i": 3904,
+      "j": 13051,
+      "sim": 0.9999996423721313,
+      "breed_i": "whippet",
+      "breed_j": "briard",
+      "id_i": "n02091134_16337",
+      "id_j": "n02105251_7647"
+    },
+    {
+      "i": 2900,
+      "j": 3063,
+      "sim": 0.9989839792251587,
+      "breed_i": "walker_hound",
+      "breed_j": "english_foxhound",
+      "id_i": "n02089867_2880",
+      "id_j": "n02089973_3160"
+    },
+    {
+      "i": 2935,
+      "j": 3002,
+      "sim": 0.9982060194015503,
+      "breed_i": "walker_hound",
+      "breed_j": "english_foxhound",
+      "id_i": "n02089867_4001",
+      "id_j": "n02089973_1957"
+    },
+    {
+      "i": 6721,
+      "j": 7023,
+      "sim": 0.9970531463623047,
+      "breed_i": "wire-haired_fox_terrier",
+      "breed_j": "lakeland_terrier",
+      "id_i": "n02095314_2038",
+      "id_j": "n02095570_95"
+    },
+    {
+      "i": 2890,
+      "j": 3049,
+      "sim": 0.9966552257537842,
+      "breed_i": "walker_hound",
+      "breed_j": "english_foxhound",
+      "id_i": "n02089867_2653",
+      "id_j": "n02089973_2905"
+    },
+    {
+      "i": 8242,
+      "j": 8504,
+      "sim": 0.99632728099823,
+      "breed_i": "miniature_schnauzer",
+      "breed_j": "standard_schnauzer",
+      "id_i": "n02097047_2426",
+      "id_j": "n02097209_1170"
+    },
+    {
+      "i": 6447,
+      "j": 7664,
+      "sim": 0.9864358901977539,
+      "breed_i": "norwich_terrier",
+      "breed_j": "australian_terrier",
+      "id_i": "n02094258_3253",
+      "id_j": "n02096294_2175"
+    },
+    {
+      "i": 5838,
+      "j": 6793,
+      "sim": 0.9826762676239014,
+      "breed_i": "kerry_blue_terrier",
+      "breed_j": "wire-haired_fox_terrier",
+      "id_i": "n02093859_1697",
+      "id_j": "n02095314_3495"
+    },
+    {
+      "i": 6310,
+      "j": 6496,
+      "sim": 0.9785948395729065,
+      "breed_i": "norfolk_terrier",
+      "breed_j": "norwich_terrier",
+      "id_i": "n02094114_745",
+      "id_j": "n02094258_880"
+    },
+    {
+      "i": 2850,
+      "j": 3011,
+      "sim": 0.9781836271286011,
+      "breed_i": "walker_hound",
+      "breed_j": "english_foxhound",
+      "id_i": "n02089867_1882",
+      "id_j": "n02089973_2093"
+    },
+    {
+      "i": 6773,
+      "j": 7056,
+      "sim": 0.9738627076148987,
+      "breed_i": "wire-haired_fox_terrier",
+      "breed_j": "sealyham_terrier",
+      "id_i": "n02095314_3166",
+      "id_j": "n02095889_1820"
+    },
+    {
+      "i": 13850,
+      "j": 13980,
+      "sim": 0.9718260765075684,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_2522",
+      "id_j": "n02106166_4625"
+    },
+    {
+      "i": 7045,
+      "j": 7934,
+      "sim": 0.9714608192443848,
+      "breed_i": "sealyham_terrier",
+      "breed_j": "dandie_dinmont",
+      "id_i": "n02095889_1458",
+      "id_j": "n02096437_3847"
+    },
+    {
+      "i": 6268,
+      "j": 6403,
+      "sim": 0.9689725041389465,
+      "breed_i": "norfolk_terrier",
+      "breed_j": "norwich_terrier",
+      "id_i": "n02094114_382",
+      "id_j": "n02094258_2475"
+    },
+    {
+      "i": 6212,
+      "j": 6496,
+      "sim": 0.968334436416626,
+      "breed_i": "norfolk_terrier",
+      "breed_j": "norwich_terrier",
+      "id_i": "n02094114_2206",
+      "id_j": "n02094258_880"
+    },
+    {
+      "i": 6447,
+      "j": 7686,
+      "sim": 0.9652551412582397,
+      "breed_i": "norwich_terrier",
+      "breed_j": "australian_terrier",
+      "id_i": "n02094258_3253",
+      "id_j": "n02096294_285"
+    },
+    {
+      "i": 223,
+      "j": 8832,
+      "sim": 0.9644744992256165,
+      "breed_i": "japanese_spaniel",
+      "breed_j": "tibetan_terrier",
+      "id_i": "n02085782_2459",
+      "id_j": "n02097474_1962"
+    },
+    {
+      "i": 2925,
+      "j": 2963,
+      "sim": 0.9618805646896362,
+      "breed_i": "walker_hound",
+      "breed_j": "english_foxhound",
+      "id_i": "n02089867_3608",
+      "id_j": "n02089973_1076"
+    },
+    {
+      "i": 14614,
+      "j": 14684,
+      "sim": 0.9584832191467285,
+      "breed_i": "doberman",
+      "breed_j": "miniature_pinscher",
+      "id_i": "n02107142_7206",
+      "id_j": "n02107312_3227"
+    },
+    {
+      "i": 13774,
+      "j": 13896,
+      "sim": 0.9575526118278503,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_15622",
+      "id_j": "n02106166_1205"
+    },
+    {
+      "i": 5838,
+      "j": 5992,
+      "sim": 0.9572458267211914,
+      "breed_i": "kerry_blue_terrier",
+      "breed_j": "irish_terrier",
+      "id_i": "n02093859_1697",
+      "id_j": "n02093991_1282"
+    },
+    {
+      "i": 6310,
+      "j": 6414,
+      "sim": 0.9570474028587341,
+      "breed_i": "norfolk_terrier",
+      "breed_j": "norwich_terrier",
+      "id_i": "n02094114_745",
+      "id_j": "n02094258_2633"
+    },
+    {
+      "i": 6150,
+      "j": 6414,
+      "sim": 0.9543985724449158,
+      "breed_i": "norfolk_terrier",
+      "breed_j": "norwich_terrier",
+      "id_i": "n02094114_1020",
+      "id_j": "n02094258_2633"
+    },
+    {
+      "i": 13737,
+      "j": 13980,
+      "sim": 0.9542065858840942,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_10170",
+      "id_j": "n02106166_4625"
+    },
+    {
+      "i": 13830,
+      "j": 13896,
+      "sim": 0.9533044099807739,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_17679",
+      "id_j": "n02106166_1205"
+    },
+    {
+      "i": 5992,
+      "j": 6793,
+      "sim": 0.9532063007354736,
+      "breed_i": "irish_terrier",
+      "breed_j": "wire-haired_fox_terrier",
+      "id_i": "n02093991_1282",
+      "id_j": "n02095314_3495"
+    },
+    {
+      "i": 13850,
+      "j": 14019,
+      "sim": 0.9506089687347412,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_2522",
+      "id_j": "n02106166_739"
+    },
+    {
+      "i": 14614,
+      "j": 14687,
+      "sim": 0.9503546357154846,
+      "breed_i": "doberman",
+      "breed_j": "miniature_pinscher",
+      "id_i": "n02107142_7206",
+      "id_j": "n02107312_3368"
+    },
+    {
+      "i": 13737,
+      "j": 13887,
+      "sim": 0.949958086013794,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_10170",
+      "id_j": "n02106166_1031"
+    },
+    {
+      "i": 14614,
+      "j": 14709,
+      "sim": 0.9482541084289551,
+      "breed_i": "doberman",
+      "breed_j": "miniature_pinscher",
+      "id_i": "n02107142_7206",
+      "id_j": "n02107312_4167"
+    },
+    {
+      "i": 16639,
+      "j": 16721,
+      "sim": 0.9480522871017456,
+      "breed_i": "eskimo_dog",
+      "breed_j": "malamute",
+      "id_i": "n02109961_7100",
+      "id_j": "n02110063_14491"
+    },
+    {
+      "i": 14614,
+      "j": 14710,
+      "sim": 0.947001039981842,
+      "breed_i": "doberman",
+      "breed_j": "miniature_pinscher",
+      "id_i": "n02107142_7206",
+      "id_j": "n02107312_4234"
+    },
+    {
+      "i": 6212,
+      "j": 6414,
+      "sim": 0.9469945430755615,
+      "breed_i": "norfolk_terrier",
+      "breed_j": "norwich_terrier",
+      "id_i": "n02094114_2206",
+      "id_j": "n02094258_2633"
+    },
+    {
+      "i": 6648,
+      "j": 9146,
+      "sim": 0.9453938007354736,
+      "breed_i": "yorkshire_terrier",
+      "breed_j": "silky_terrier",
+      "id_i": "n02094433_730",
+      "id_j": "n02097658_641"
+    },
+    {
+      "i": 13850,
+      "j": 14020,
+      "sim": 0.944732129573822,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_2522",
+      "id_j": "n02106166_7447"
+    },
+    {
+      "i": 14614,
+      "j": 14807,
+      "sim": 0.9442705512046814,
+      "breed_i": "doberman",
+      "breed_j": "miniature_pinscher",
+      "id_i": "n02107142_7206",
+      "id_j": "n02107312_7214"
+    },
+    {
+      "i": 13737,
+      "j": 14020,
+      "sim": 0.9435802698135376,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_10170",
+      "id_j": "n02106166_7447"
+    },
+    {
+      "i": 6737,
+      "j": 7021,
+      "sim": 0.9400125741958618,
+      "breed_i": "wire-haired_fox_terrier",
+      "breed_j": "lakeland_terrier",
+      "id_i": "n02095314_2354",
+      "id_j": "n02095570_916"
+    },
+    {
+      "i": 7681,
+      "j": 9131,
+      "sim": 0.9391973614692688,
+      "breed_i": "australian_terrier",
+      "breed_j": "silky_terrier",
+      "id_i": "n02096294_261",
+      "id_j": "n02097658_5548"
+    },
+    {
+      "i": 13812,
+      "j": 13896,
+      "sim": 0.938715934753418,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_16370",
+      "id_j": "n02106166_1205"
+    },
+    {
+      "i": 14614,
+      "j": 14703,
+      "sim": 0.9387156963348389,
+      "breed_i": "doberman",
+      "breed_j": "miniature_pinscher",
+      "id_i": "n02107142_7206",
+      "id_j": "n02107312_398"
+    },
+    {
+      "i": 13737,
+      "j": 14019,
+      "sim": 0.938696026802063,
+      "breed_i": "collie",
+      "breed_j": "border_collie",
+      "id_i": "n02106030_10170",
+      "id_j": "n02106166_739"
+    },
+    {
+      "i": 8759,
+      "j": 9398,
+      "sim": 0.9386024475097656,
+      "breed_i": "scotch_terrier",
+      "breed_j": "west_highland_white_terrier",
+      "id_i": "n02097298_7639",
+      "id_j": "n02098286_260"
+    },
+    {
+      "i": 14614,
+      "j": 14776,
+      "sim": 0.9380593299865723,
+      "breed_i": "doberman",
+      "breed_j": "miniature_pinscher",
+      "id_i": "n02107142_7206",
+      "id_j": "n02107312_6151"
+    }
+  ]
+}

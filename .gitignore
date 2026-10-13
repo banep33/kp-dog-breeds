@@ -10,5 +10,18 @@ runs/
 artifacts/
 *.pt
 *.onnx
+*.npy
 wandb/
 optuna.db
+*.db
+mlruns/
+
+# radni/privatni dokumenti (ne utiču na kod)
+docs/PLAN.md
+docs/INTERVIEW.md
+docs/scratch*
+
+# izvestaji koji se generisu iz koda (reprodukuju se skriptama)
+reports/figures/
+reports/*.html
+reports/image_metadata.csv

@@ -1,0 +1,63 @@
+{
+  "n_images": 20580,
+  "n_classes": 120,
+  "per_class": {
+    "min": 148,
+    "min_breed": "redbone",
+    "max": 252,
+    "max_breed": "maltese_dog",
+    "median": 159.5,
+    "mean": 171.5,
+    "imbalance_max_over_min": 1.7,
+    "std": 23.2
+  },
+  "resolution": {
+    "short_edge_median": 373.0,
+    "short_edge_min": 97.0,
+    "short_edge_max": 2448.0,
+    "short_edge_p05": 200.0,
+    "below_224px": 1577,
+    "below_224px_pct": 7.66,
+    "megapixels_median": 0.18
+  },
+  "aspect_ratio": {
+    "p01": 0.636,
+    "median": 1.333,
+    "p99": 1.679,
+    "portrait_pct": 27.8
+  },
+  "file_size_kb": {
+    "median": 32.2,
+    "p99": 140.9,
+    "total_mb": 741.7
+  },
+  "pil_modes": {
+    "RGB": 20579,
+    "RGBA": 1
+  },
+  "broken_files": [],
+  "least_represented_breeds": {
+    "groenendael": 150,
+    "malinois": 150,
+    "border_collie": 150,
+    "bouvier_des_flandres": 150,
+    "doberman": 150,
+    "eskimo_dog": 150,
+    "affenpinscher": 150,
+    "dhole": 150,
+    "pekinese": 149,
+    "redbone": 148
+  },
+  "most_represented_breeds": {
+    "maltese_dog": 252,
+    "afghan_hound": 239,
+    "scottish_deerhound": 232,
+    "pomeranian": 219,
+    "irish_wolfhound": 218,
+    "bernese_mountain_dog": 218,
+    "samoyed": 218,
+    "shih-tzu": 214,
+    "great_pyrenees": 213,
+    "leonberg": 210
+  }
+}
