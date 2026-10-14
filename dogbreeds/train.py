@@ -27,7 +27,7 @@ import torch.nn as nn
 
 from .config import load_config
 from .data import build_loaders
-from .metrics import topk_accuracy
+from .metrics import SELECTION_METRIC, selection_key, topk_accuracy
 from .model import count_params, create_model, get_data_config, set_backbone_trainable, split_params
 
 
@@ -120,7 +120,7 @@ def run(cfg: dict, trial=None) -> dict:
         import wandb
         wandb_run = wandb.init(project=cfg["logging"]["wandb_project"], name=run_name, config=cfg)
 
-    best = {"top1": -1.0}
+    best = {SELECTION_METRIC: -1.0, "top1": -1.0}
     history, bad_epochs, step = [], 0, 0
     for epoch in range(tc["epochs"]):
         set_backbone_trainable(model, epoch >= tc.get("freeze_epochs", 0))
@@ -158,7 +158,7 @@ def run(cfg: dict, trial=None) -> dict:
         if wandb_run:
             wandb_run.log(row)
 
-        if val["top1"] > best["top1"]:
+        if selection_key(val) > selection_key(best):
             best = {**val, "epoch": epoch + 1}
             bad_epochs = 0
             torch.save({
@@ -174,7 +174,7 @@ def run(cfg: dict, trial=None) -> dict:
 
         if trial is not None:  # Optuna: prekini loše trial-ove rano (pruning)
             import optuna
-            trial.report(val["top1"], epoch)
+            trial.report(val[SELECTION_METRIC], epoch)
             if trial.should_prune():
                 raise optuna.TrialPruned()
 

@@ -28,7 +28,8 @@ import torch
 import torch.nn as nn
 
 from .embed import load as load_emb
-from .metrics import expected_calibration_error, fit_temperature, topk_accuracy
+from .metrics import (SELECTION_METRIC, expected_calibration_error, fit_temperature,
+                      selection_key, topk_accuracy)
 
 # Kandidati iz docs/PLAN.md (Dan 2). Prefiks .npy dolazi iz dogbreeds.embed.
 CANDIDATES = {
@@ -105,7 +106,7 @@ def train_head(
     X: np.ndarray, y: np.ndarray, Xv: np.ndarray, yv: np.ndarray,
     num_classes: int, epochs: int = 60, lr: float = 1e-2, weight_decay: float = 1e-4,
     label_smoothing: float = 0.05, batch_size: int = 512, seed: int = 42, verbose: bool = True,
-    standardize: bool = True,
+    standardize: bool = True, trial=None,
 ) -> tuple[nn.Linear, dict, list[dict]]:
     """Jedan Linear sloj (D -> 120), AdamW + cosine. Namerno isti recept kao u `train.py`
     da poređenje bude pošteno — razlika je samo u tome što je backbone zamrznut.
@@ -129,7 +130,7 @@ def train_head(
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=epochs)
     crit = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
 
-    best = {"top1": -1.0}
+    best = {SELECTION_METRIC: -1.0, "top1": -1.0}
     best_state, history = None, []
     g = torch.Generator().manual_seed(seed)
     for ep in range(epochs):
@@ -151,12 +152,18 @@ def train_head(
         m = topk_accuracy(logits, yvt, ks=(1, 3))
         m["loss"] = nn.functional.cross_entropy(logits, yvt).item()
         history.append({"epoch": ep + 1, "train_loss": tot / len(Xt), **m})
-        if m["top1"] > best["top1"]:
+        if selection_key(m) > selection_key(best):
             best = {**m, "epoch": ep + 1}
             best_state = {k: v.clone() for k, v in head.state_dict().items()}
         if verbose and (ep + 1) % 20 == 0:
             print(f"  [ep {ep + 1:03d}] train_loss {tot / len(Xt):.3f} | "
                   f"val top1 {m['top1']:.4f} top3 {m['top3']:.4f}")
+
+        if trial is not None:  # Optuna: prekini lose trial-ove rano (isti hook kao train.run)
+            import optuna
+            trial.report(m[SELECTION_METRIC], ep)
+            if trial.should_prune():
+                raise optuna.TrialPruned()
 
     head.load_state_dict(best_state)
     head.eval()
@@ -237,7 +244,7 @@ def select_lr(emb, s, num_classes, lr_grid, epochs, weight_decay, seed, verbose)
         results.append({"lr": lr, "head": head, "best": best, "hist": hist})
         if verbose:
             print(f"    lr {lr:<8.4g} -> val top1 {best['top1']:.4f} top3 {best['top3']:.4f}")
-    win = max(results, key=lambda r: r["best"]["top1"])
+    win = max(results, key=lambda r: selection_key(r["best"]))
     if verbose:
         print(f"    izabran lr = {win['lr']:g}")
     return win["head"], win["best"], win["hist"], win["lr"], [
@@ -248,7 +255,8 @@ def select_lr(emb, s, num_classes, lr_grid, epochs, weight_decay, seed, verbose)
 def run_probe(emb_prefix: str, splits_dir: str, model_name: str | None = None,
               out_dir: str | None = None, epochs: int = 60, lr: float = 1e-2,
               weight_decay: float = 1e-4, seed: int = 42, verbose: bool = True,
-              lr_grid: list[float] | None = None) -> dict:
+              lr_grid: list[float] | None = None, label_smoothing: float = 0.05,
+              batch_size: int = 512) -> dict:
     emb, ids, meta = load_emb(emb_prefix)
     model_name = model_name or meta["model"]
     classes = json.loads((Path(splits_dir) / "classes.json").read_text(encoding="utf-8"))
@@ -267,6 +275,7 @@ def run_probe(emb_prefix: str, splits_dir: str, model_name: str | None = None,
         head, best, history = train_head(
             emb[s["train_idx"]], s["train_y"], emb[s["val_idx"]], s["val_y"],
             num_classes=len(classes), epochs=epochs, lr=lr, weight_decay=weight_decay,
+            label_smoothing=label_smoothing, batch_size=batch_size,
             seed=seed, verbose=verbose)
     train_sec = time.perf_counter() - t0
 
@@ -291,6 +300,9 @@ def run_probe(emb_prefix: str, splits_dir: str, model_name: str | None = None,
         "temperature": T,
         "best_epoch": best["epoch"],
         "lr": lr,
+        "label_smoothing": label_smoothing,
+        "batch_size": batch_size,
+        "epochs": epochs,
         "lr_search": lr_search,
         "n_test": int(len(s["test_y"])),
         "head_train_seconds": round(train_sec, 1),
@@ -306,7 +318,8 @@ def run_probe(emb_prefix: str, splits_dir: str, model_name: str | None = None,
     if out_dir:
         od = Path(out_dir)
         cfg = {"model": {"name": model_name, "pretrained": True}, "seed": seed,
-               "probe": {"epochs": epochs, "lr": lr, "weight_decay": weight_decay}}
+               "probe": {"epochs": epochs, "lr": lr, "weight_decay": weight_decay,
+                         "label_smoothing": label_smoothing, "batch_size": batch_size}}
         ckpt = save_as_timm_checkpoint(head, model_name, classes, meta,
                                        {"top1": best["top1"], "top3": best["top3"],
                                         "epoch": best["epoch"]}, od, cfg)
@@ -336,6 +349,8 @@ def main() -> None:
     ap.add_argument("--epochs", type=int, default=60)
     ap.add_argument("--lr", type=float, default=1e-2)
     ap.add_argument("--weight-decay", type=float, default=1e-4)
+    ap.add_argument("--label-smoothing", type=float, default=0.05)
+    ap.add_argument("--batch-size", type=int, default=512)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--lr-grid", type=float, nargs="*",
                     default=[3e-3, 1e-2, 3e-2, 1e-1],
@@ -365,7 +380,8 @@ def main() -> None:
         print(f"\n-> {a.report}")
     else:
         run_probe(a.emb, a.splits, a.model, a.out, a.epochs, a.lr, a.weight_decay, a.seed,
-                  lr_grid=a.lr_grid)
+                  lr_grid=a.lr_grid, label_smoothing=a.label_smoothing,
+                  batch_size=a.batch_size)
 
 
 if __name__ == "__main__":

@@ -7,6 +7,22 @@ import torch
 import torch.nn.functional as F
 
 
+# Po čemu se bira "najbolja" epoha, najbolji LR i najbolji HPO trial. Zadatak traži
+# prikaz TRI odgovora, pa je top-3 poslovna metrika; biranje po top-1 optimizuje nešto
+# što korisnik nikad ne vidi samo za sebe. Jedno mesto za sve module.
+SELECTION_METRIC = "top3"
+
+
+def selection_key(m: dict) -> tuple[float, float]:
+    """Ključ za poređenje dva rezultata: top-3 primarno, top-1 razrešava izjednačenje.
+
+    Zašto ne samo top-3: kad ima malo klasa (ili kad model dostigne plato) top-3 se
+    zasiti i više ne razlikuje epohe -- tada bi izbor pao na prvu slučajnu. Top-1 kao
+    drugi kriterijum bira među jednako dobrim top-3 rezultatima onaj koji je i inače
+    tačniji, bez menjanja toga šta optimizujemo."""
+    return (m[SELECTION_METRIC], m.get("top1", 0.0))
+
+
 def topk_accuracy(logits: torch.Tensor, targets: torch.Tensor, ks=(1, 3)) -> dict[str, float]:
     ks = [k for k in ks if k <= logits.size(1)]
     _, pred = logits.topk(max(ks), dim=1)

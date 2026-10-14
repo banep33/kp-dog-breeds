@@ -1,0 +1,24 @@
+{
+  "space": "probe",
+  "study_name": "hpo_probe",
+  "metric": "top3",
+  "n_trials_total": 30,
+  "trial_states": {
+    "COMPLETE": 18,
+    "PRUNED": 12
+  },
+  "best_trial_number": 25,
+  "best_params": {
+    "lr": 0.0005723614904781238,
+    "weight_decay": 0.0010471356563538326,
+    "label_smoothing": 0.008945986925352385,
+    "epochs": 60,
+    "batch_size": 256
+  },
+  "best_val_top1": 0.8960660696029663,
+  "best_val_top3": 0.991257905960083,
+  "model": "efficientnet_b0.ra4_e3600_r224_in1k",
+  "emb_dim": 1280,
+  "n_train": 16463,
+  "n_val": 2059
+}
