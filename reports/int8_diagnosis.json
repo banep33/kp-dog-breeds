@@ -1,0 +1,170 @@
+{
+  "zakljucak": "INT8 post-training kvantizacija se ODBACUJE. Isporucuje se FP32.",
+  "fp32_referenca": {
+    "top1": 0.884,
+    "top3": 0.982,
+    "p50_ms": 10.339199998270487,
+    "size_mb": 16.619751,
+    "logit_range": [
+      -2.48,
+      8.05
+    ]
+  },
+  "probane_konfiguracije": [
+    {
+      "varijanta": "H_excl_gemm",
+      "top1": 0.01,
+      "top3": 0.036,
+      "size_mb": 5.4,
+      "p50_ms": 11.7
+    },
+    {
+      "varijanta": "A_qdq_uint8",
+      "top1": 0.01,
+      "top3": 0.034,
+      "size_mb": 5.0,
+      "p50_ms": 11.4
+    },
+    {
+      "varijanta": "C_qop_uint8",
+      "top1": 0.01,
+      "top3": 0.034,
+      "size_mb": 4.6,
+      "p50_ms": 11.7
+    },
+    {
+      "varijanta": "F_qdq_percentile",
+      "top1": 0.014,
+      "top3": 0.026,
+      "size_mb": 5.0,
+      "p50_ms": 10.8
+    },
+    {
+      "varijanta": "K_excl_se",
+      "top1": 0.004,
+      "top3": 0.026,
+      "size_mb": 7.1,
+      "p50_ms": 11.8
+    },
+    {
+      "varijanta": "B_qdq_int8",
+      "top1": 0.004,
+      "top3": 0.022,
+      "size_mb": 5.0,
+      "p50_ms": 34.0
+    },
+    {
+      "varijanta": "D_qdq_symmetric",
+      "top1": 0.008,
+      "top3": 0.022,
+      "size_mb": 5.0,
+      "p50_ms": 11.4
+    },
+    {
+      "varijanta": "J_rr_excl_gemm_conv1",
+      "top1": 0.012,
+      "top3": 0.022,
+      "size_mb": 5.4,
+      "p50_ms": 11.2
+    },
+    {
+      "varijanta": "E_qdq_no_perchannel",
+      "top1": 0.012,
+      "top3": 0.02,
+      "size_mb": 4.6,
+      "p50_ms": 11.6
+    },
+    {
+      "varijanta": "G_reduce_range",
+      "top1": 0.008,
+      "top3": 0.02,
+      "size_mb": 5.0,
+      "p50_ms": 11.3
+    },
+    {
+      "varijanta": "I_rr_excl_gemm",
+      "top1": 0.008,
+      "top3": 0.02,
+      "size_mb": 5.4,
+      "p50_ms": 11.6
+    }
+  ],
+  "dijagnoza_po_slojevima": {
+    "metrika": "SQNR u dB izmedju FP32 i QDQ aktivacija (vise je bolje; zdrava kvantizacija je 20-40 dB)",
+    "alat": "onnxruntime.quantization.qdq_loss_debug",
+    "n_tenzora": 240,
+    "n_negativnih": 97,
+    "udeo_negativnih": 0.404,
+    "po_tipu_sloja": {
+      "se_blok": {
+        "n": 112,
+        "median_sqnr_db": 2.76,
+        "min_sqnr_db": -7.66
+      },
+      "silu_mul": {
+        "n": 33,
+        "median_sqnr_db": -0.25,
+        "min_sqnr_db": -11.41
+      },
+      "silu_sigmoid": {
+        "n": 33,
+        "median_sqnr_db": 6.02,
+        "min_sqnr_db": 1.26
+      },
+      "conv": {
+        "n": 49,
+        "median_sqnr_db": -0.9,
+        "min_sqnr_db": -10.57
+      }
+    },
+    "najgorih_10": [
+      {
+        "tensor": "/blocks/blocks.2/blocks.2.1/bn2/act/Mul_output_0",
+        "sqnr_db": -11.41
+      },
+      {
+        "tensor": "/blocks/blocks.1/blocks.1.1/conv_dw/Conv_output_0",
+        "sqnr_db": -10.57
+      },
+      {
+        "tensor": "/blocks/blocks.1/blocks.1.1/bn2/act/Mul_output_0",
+        "sqnr_db": -10.32
+      },
+      {
+        "tensor": "/blocks/blocks.2/blocks.2.1/conv_dw/Conv_output_0",
+        "sqnr_db": -9.99
+      },
+      {
+        "tensor": "/blocks/blocks.2/blocks.2.1/se/ReduceMean_output_0",
+        "sqnr_db": -7.66
+      },
+      {
+        "tensor": "/blocks/blocks.3/blocks.3.2/bn2/act/Mul_output_0",
+        "sqnr_db": -4.87
+      },
+      {
+        "tensor": "/blocks/blocks.5/blocks.5.0/se/act1/Mul_output_0",
+        "sqnr_db": -4.83
+      },
+      {
+        "tensor": "/blocks/blocks.1/blocks.1.1/se/conv_reduce/Conv_output_0",
+        "sqnr_db": -4.7
+      },
+      {
+        "tensor": "/blocks/blocks.1/blocks.1.1/se/act1/Mul_output_0",
+        "sqnr_db": -4.67
+      },
+      {
+        "tensor": "/blocks/blocks.3/blocks.3.2/conv_dw/Conv_output_0",
+        "sqnr_db": -4.5
+      }
+    ],
+    "logits_sqnr_db": -4.33
+  },
+  "uzrok": "Steta je GLOBALNA, ne lokalna: 40% tenzora ima negativan SQNR, dakle sum kvantizacije je veci od signala. Medijana SQNR-a je -0.25 dB za SiLU izlaze i -0.90 dB za Conv izlaze. Depthwise konvolucije + SiLU u EfficientNet-u daju aktivacije sa ekstremnim odstupanjima po kanalima, a staticka kvantizacija aktivacija je po tenzoru i to ne moze da predstavi. Zato ni iskljucivanje SE blokova (112 cvorova) ni klasifikatora ne pomaze -- moralo bi se iskljuciti skoro sve.",
+  "sta_bi_pomoglo": [
+    "quantization-aware training (QAT) umesto post-training kvantizacije",
+    "arhitektura prijateljskija prema kvantizaciji (ReLU umesto SiLU, bez SE blokova)"
+  ],
+  "zasto_ne_idemo_dalje": "FP32 vec ispunjava budzet dvostruko (p95 ~21 ms naspram granice 100 ms, 16,6 MB naspram 50 MB), a QAT trazi ponovni trening cele mreze na GPU-u -- sto je, po merenju iz Dana 3.5, i inace bez dobitka u tacnosti."
+}

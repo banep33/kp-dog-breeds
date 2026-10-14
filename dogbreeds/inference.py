@@ -1,7 +1,7 @@
 """Inference bez PyTorch-a: PIL + NumPy + ONNX Runtime.
 
 Ovo je kod koji ide u produkciju (FastAPI servis, Dan 5). Namerno NE zavisi od torch-a,
-pa je Docker image mali (~200MB umesto ~2GB) i radi brzo na običnom CPU-u.
+pa je Docker image 605 MB (izmereno) umesto višestruko više, i radi brzo na običnom CPU-u.
 
     python -m dogbreeds.inference artifacts/model.onnx slika.jpg
 """

@@ -1,0 +1,341 @@
+{
+  "signal": "top3_mass",
+  "threshold": 0.915,
+  "rule": "najveci tau sa warn_rate <= 5%, fitovan na val",
+  "val": {
+    "tau": 0.915,
+    "warn_rate": 0.04711024769305488,
+    "coverage": 0.9528897523069452,
+    "top3_on_answered": 0.9949031600407747,
+    "n_warned": 97,
+    "errors_caught": 12,
+    "error_recall": 0.5454545454545454
+  },
+  "n_val": 2059,
+  "per_signal": {
+    "top3_mass": {
+      "best": {
+        "tau": 0.915,
+        "warn_rate": 0.04711024769305488,
+        "coverage": 0.9528897523069452,
+        "top3_on_answered": 0.9949031600407747,
+        "n_warned": 97,
+        "errors_caught": 12,
+        "error_recall": 0.5454545454545454
+      },
+      "curve": [
+        {
+          "tau": 0.7,
+          "warn_rate": 0.005342399222923749,
+          "coverage": 0.9946576007770762,
+          "top3_on_answered": 0.990234375,
+          "n_warned": 11,
+          "errors_caught": 2,
+          "error_recall": 0.09090909090909091
+        },
+        {
+          "tau": 0.72,
+          "warn_rate": 0.007285089849441476,
+          "coverage": 0.9927149101505586,
+          "top3_on_answered": 0.9911937377690803,
+          "n_warned": 15,
+          "errors_caught": 4,
+          "error_recall": 0.18181818181818182
+        },
+        {
+          "tau": 0.74,
+          "warn_rate": 0.008742107819329771,
+          "coverage": 0.9912578921806702,
+          "top3_on_answered": 0.9921607055365017,
+          "n_warned": 18,
+          "errors_caught": 6,
+          "error_recall": 0.2727272727272727
+        },
+        {
+          "tau": 0.76,
+          "warn_rate": 0.010199125789218067,
+          "coverage": 0.9898008742107819,
+          "top3_on_answered": 0.9921491658488715,
+          "n_warned": 21,
+          "errors_caught": 6,
+          "error_recall": 0.2727272727272727
+        },
+        {
+          "tau": 0.78,
+          "warn_rate": 0.011656143759106362,
+          "coverage": 0.9883438562408936,
+          "top3_on_answered": 0.9921375921375921,
+          "n_warned": 24,
+          "errors_caught": 6,
+          "error_recall": 0.2727272727272727
+        },
+        {
+          "tau": 0.8,
+          "warn_rate": 0.012627489072365225,
+          "coverage": 0.9873725109276348,
+          "top3_on_answered": 0.9921298573536645,
+          "n_warned": 26,
+          "errors_caught": 6,
+          "error_recall": 0.2727272727272727
+        },
+        {
+          "tau": 0.82,
+          "warn_rate": 0.016998542982030112,
+          "coverage": 0.9830014570179699,
+          "top3_on_answered": 0.9930830039525692,
+          "n_warned": 35,
+          "errors_caught": 8,
+          "error_recall": 0.36363636363636365
+        },
+        {
+          "tau": 0.84,
+          "warn_rate": 0.021855269548324428,
+          "coverage": 0.9781447304516756,
+          "top3_on_answered": 0.993545183714002,
+          "n_warned": 45,
+          "errors_caught": 9,
+          "error_recall": 0.4090909090909091
+        },
+        {
+          "tau": 0.86,
+          "warn_rate": 0.02428363283147159,
+          "coverage": 0.9757163671685284,
+          "top3_on_answered": 0.993529118964659,
+          "n_warned": 50,
+          "errors_caught": 9,
+          "error_recall": 0.4090909090909091
+        },
+        {
+          "tau": 0.88,
+          "warn_rate": 0.03108305002428363,
+          "coverage": 0.9689169499757164,
+          "top3_on_answered": 0.9944862155388471,
+          "n_warned": 64,
+          "errors_caught": 11,
+          "error_recall": 0.5
+        },
+        {
+          "tau": 0.9,
+          "warn_rate": 0.0398251578436134,
+          "coverage": 0.9601748421563866,
+          "top3_on_answered": 0.9949418310571573,
+          "n_warned": 82,
+          "errors_caught": 12,
+          "error_recall": 0.5454545454545454
+        },
+        {
+          "tau": 0.92,
+          "warn_rate": 0.05293831957260806,
+          "coverage": 0.9470616804273919,
+          "top3_on_answered": 0.9948717948717949,
+          "n_warned": 109,
+          "errors_caught": 12,
+          "error_recall": 0.5454545454545454
+        },
+        {
+          "tau": 0.94,
+          "warn_rate": 0.06702282661486159,
+          "coverage": 0.9329771733851384,
+          "top3_on_answered": 0.9958355023425299,
+          "n_warned": 138,
+          "errors_caught": 14,
+          "error_recall": 0.6363636363636364
+        },
+        {
+          "tau": 0.96,
+          "warn_rate": 0.09519184069936863,
+          "coverage": 0.9048081593006314,
+          "top3_on_answered": 0.9957058507783145,
+          "n_warned": 196,
+          "errors_caught": 14,
+          "error_recall": 0.6363636363636364
+        },
+        {
+          "tau": 0.98,
+          "warn_rate": 0.16464303059737737,
+          "coverage": 0.8353569694026226,
+          "top3_on_answered": 0.997093023255814,
+          "n_warned": 339,
+          "errors_caught": 17,
+          "error_recall": 0.7727272727272727
+        },
+        {
+          "tau": 1.0,
+          "warn_rate": 1.0,
+          "coverage": 0.0,
+          "top3_on_answered": NaN,
+          "n_warned": 2059,
+          "errors_caught": 22,
+          "error_recall": 1.0
+        }
+      ]
+    },
+    "max_prob": {
+      "best": {
+        "tau": 0.53,
+        "warn_rate": 0.04856726566294318,
+        "coverage": 0.9514327343370568,
+        "top3_on_answered": 0.9928534966819806,
+        "n_warned": 100,
+        "errors_caught": 8,
+        "error_recall": 0.36363636363636365
+      },
+      "curve": [
+        {
+          "tau": 0.7,
+          "warn_rate": 0.1345313258863526,
+          "coverage": 0.8654686741136474,
+          "top3_on_answered": 0.9938271604938271,
+          "n_warned": 277,
+          "errors_caught": 11,
+          "error_recall": 0.5
+        },
+        {
+          "tau": 0.72,
+          "warn_rate": 0.14278776104905294,
+          "coverage": 0.8572122389509471,
+          "top3_on_answered": 0.9937677053824363,
+          "n_warned": 294,
+          "errors_caught": 11,
+          "error_recall": 0.5
+        },
+        {
+          "tau": 0.74,
+          "warn_rate": 0.15492957746478872,
+          "coverage": 0.8450704225352113,
+          "top3_on_answered": 0.9936781609195402,
+          "n_warned": 319,
+          "errors_caught": 11,
+          "error_recall": 0.5
+        },
+        {
+          "tau": 0.76,
+          "warn_rate": 0.16561437591063624,
+          "coverage": 0.8343856240893638,
+          "top3_on_answered": 0.9935972060535506,
+          "n_warned": 341,
+          "errors_caught": 11,
+          "error_recall": 0.5
+        },
+        {
+          "tau": 0.78,
+          "warn_rate": 0.17629917435648373,
+          "coverage": 0.8237008256435163,
+          "top3_on_answered": 0.9941037735849056,
+          "n_warned": 363,
+          "errors_caught": 12,
+          "error_recall": 0.5454545454545454
+        },
+        {
+          "tau": 0.8,
+          "warn_rate": 0.18746964545896067,
+          "coverage": 0.8125303545410394,
+          "top3_on_answered": 0.9946204423191871,
+          "n_warned": 386,
+          "errors_caught": 13,
+          "error_recall": 0.5909090909090909
+        },
+        {
+          "tau": 0.82,
+          "warn_rate": 0.20009713453132588,
+          "coverage": 0.7999028654686742,
+          "top3_on_answered": 0.9951426836672739,
+          "n_warned": 412,
+          "errors_caught": 14,
+          "error_recall": 0.6363636363636364
+        },
+        {
+          "tau": 0.84,
+          "warn_rate": 0.2112676056338028,
+          "coverage": 0.7887323943661972,
+          "top3_on_answered": 0.9956896551724138,
+          "n_warned": 435,
+          "errors_caught": 15,
+          "error_recall": 0.6818181818181818
+        },
+        {
+          "tau": 0.86,
+          "warn_rate": 0.22680913064594463,
+          "coverage": 0.7731908693540553,
+          "top3_on_answered": 0.9956030150753769,
+          "n_warned": 467,
+          "errors_caught": 15,
+          "error_recall": 0.6818181818181818
+        },
+        {
+          "tau": 0.88,
+          "warn_rate": 0.24380767362797476,
+          "coverage": 0.7561923263720253,
+          "top3_on_answered": 0.9955041746949261,
+          "n_warned": 502,
+          "errors_caught": 15,
+          "error_recall": 0.6818181818181818
+        },
+        {
+          "tau": 0.9,
+          "warn_rate": 0.2651772705196697,
+          "coverage": 0.7348227294803302,
+          "top3_on_answered": 0.9953734302709848,
+          "n_warned": 546,
+          "errors_caught": 15,
+          "error_recall": 0.6818181818181818
+        },
+        {
+          "tau": 0.92,
+          "warn_rate": 0.29480330257406506,
+          "coverage": 0.7051966974259349,
+          "top3_on_answered": 0.9965564738292011,
+          "n_warned": 607,
+          "errors_caught": 17,
+          "error_recall": 0.7727272727272727
+        },
+        {
+          "tau": 0.94,
+          "warn_rate": 0.32928606119475473,
+          "coverage": 0.6707139388052452,
+          "top3_on_answered": 0.997103548153512,
+          "n_warned": 678,
+          "errors_caught": 18,
+          "error_recall": 0.8181818181818182
+        },
+        {
+          "tau": 0.96,
+          "warn_rate": 0.38610976202039826,
+          "coverage": 0.6138902379796017,
+          "top3_on_answered": 0.9968354430379747,
+          "n_warned": 795,
+          "errors_caught": 18,
+          "error_recall": 0.8181818181818182
+        },
+        {
+          "tau": 0.98,
+          "warn_rate": 0.476930548810102,
+          "coverage": 0.523069451189898,
+          "top3_on_answered": 0.9972144846796658,
+          "n_warned": 982,
+          "errors_caught": 19,
+          "error_recall": 0.8636363636363636
+        },
+        {
+          "tau": 1.0,
+          "warn_rate": 1.0,
+          "coverage": 0.0,
+          "top3_on_answered": NaN,
+          "n_warned": 2059,
+          "errors_caught": 22,
+          "error_recall": 1.0
+        }
+      ]
+    }
+  },
+  "test": {
+    "tau": 0.915,
+    "warn_rate": 0.03935860058309038,
+    "coverage": 0.9606413994169096,
+    "top3_on_answered": 0.9908952959028832,
+    "n_warned": 81,
+    "errors_caught": 20,
+    "error_recall": 0.5263157894736842
+  },
+  "n_test": 2058
+}

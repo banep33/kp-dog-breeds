@@ -1,0 +1,9 @@
+# Zavisnosti SAMO za produkcioni servis (Dan 5). Namerno bez torch-a i timm-a:
+# inference ide kroz ONNX Runtime, pa je Docker image ~200 MB umesto ~2 GB.
+fastapi>=0.115
+uvicorn[standard]>=0.30
+python-multipart>=0.0.9
+prometheus-client>=0.20
+pillow>=10.0
+numpy>=1.26
+onnxruntime>=1.18

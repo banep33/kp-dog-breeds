@@ -79,6 +79,36 @@ def quantize_int8(onnx_path: Path, calib_images: list[Path], data_config: dict) 
     return q
 
 
+def verify_against(candidate: Path, reference: Path, images: list[Path],
+                   data_config: dict, max_drop_pp: float = 2.0) -> dict:
+    """Slaze li se kandidat sa referentnim modelom na istim slikama.
+
+    Postoji zbog Bug-a 4: INT8 kvantizacija je pravila model koji se UREDNO ucitava,
+    radi brzo i daje gluposti. Artefakt koji se ne poklapa sa referencom ne sme tiho
+    da zavrsi u `artifacts/` -- bolje da izvoz padne ovde nego u produkciji."""
+    import onnxruntime as ort
+    from PIL import Image
+
+    from .inference import preprocess
+
+    def logits_for(path: Path) -> np.ndarray:
+        sess = ort.InferenceSession(str(path), providers=["CPUExecutionProvider"])
+        name = sess.get_inputs()[0].name
+        return np.stack([sess.run(None, {name: preprocess(Image.open(p), data_config)})[0][0]
+                         for p in images])
+
+    ref, got = logits_for(reference), logits_for(candidate)
+    agree = float((ref.argmax(1) == got.argmax(1)).mean())
+    # SQNR izlaza u dB: koliko je signala u odnosu na sum kvantizacije (vise = bolje)
+    noise = ((ref - got) ** 2).mean()
+    sqnr = float(10 * np.log10((ref ** 2).mean() / noise)) if noise > 0 else float("inf")
+    ok = agree >= 1.0 - max_drop_pp / 100.0
+    print(f"[verify] {candidate.name}: slaganje top-1 sa {reference.name} {agree:.1%} "
+          f"| SQNR {sqnr:.1f} dB | {'OK' if ok else 'NE VALJA'}")
+    return {"candidate": candidate.name, "reference": reference.name,
+            "top1_agreement": agree, "sqnr_db": round(sqnr, 2), "ok": ok, "n": len(images)}
+
+
 def benchmark(onnx_path: Path, threads: int = 4, runs: int = 50) -> dict:
     import onnxruntime as ort
 
@@ -123,7 +153,16 @@ def main():
         meta = json.loads(onnx_path.with_suffix(".json").read_text(encoding="utf-8"))
         q = quantize_int8(onnx_path, imgs, meta["data_config"])
         results.append(benchmark(q, a.threads))
-        print("VAŽNO: posle kvantizacije ponovo izmeri tačnost (scripts/eval_onnx.py) - brzina bez tačnosti ne vredi.")
+
+        # Bug 4: kvantizovan model se uredno ucitava i brz je, a daje nasumicne odgovore.
+        # Zato provera pre nego sto artefakt ostane na disku.
+        check = verify_against(q, onnx_path, imgs[:50], meta["data_config"])
+        results.append(check)
+        if not check["ok"]:
+            q.unlink(missing_ok=True)
+            q.with_suffix(".json").unlink(missing_ok=True)
+            print(f"[int8] ODBACENO: slaganje {check['top1_agreement']:.1%} je premalo. "
+                  f"Isporucuje se FP32. Uzrok i merenja: reports/int8_diagnosis.json")
     Path(a.out, "benchmark.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
 
 
