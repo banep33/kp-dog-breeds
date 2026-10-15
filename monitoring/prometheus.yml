@@ -1,0 +1,24 @@
+# Prometheus ne prima metrike -- on ih SAM skuplja (pull model). Servis samo izlaze
+# tekst na /metrics, a ovde pise koga i koliko cesto da pita.
+
+global:
+  scrape_interval: 10s        # gust uzorak: demo traje minutima, ne danima
+  evaluation_interval: 15s    # koliko cesto se proveravaju alarmi
+
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+scrape_configs:
+  # Servis za prepoznavanje rase. Ime `dog-service` je ime servisa iz docker-compose.yml --
+  # compose pravi privatnu mrezu u kojoj se kontejneri nalaze po imenu, bez IP adresa.
+  - job_name: dog-service
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["dog-service:8000"]
+        labels:
+          env: local
+
+  # Prometheus meri i sam sebe -- korisno da se vidi da li skupljanje kasni.
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

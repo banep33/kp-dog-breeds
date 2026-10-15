@@ -16,3 +16,4 @@ optuna.db
 *.npy
 *.pt
 !reports/threshold.json
+!reports/drift_reference.json

@@ -1,0 +1,111 @@
+# Kontinualna integracija: svaki push i svaki PR prolaze iste provere.
+#
+# Tri posla, namerno razdvojena po brzini:
+#   monitoring  ~30 s   ispravnost Prometheus/compose konfiguracije
+#   servis      ~1 min  produkcioni skup zavisnosti (bez torch-a) + testovi drifta
+#   testovi     ~5 min  pun skup zavisnosti + ceo pytest
+#
+# Prvi koji padne kaze gde je problem, bez cekanja na najsporiji.
+#
+# Sta CI NE radi: ne gradi Docker image. Dockerfile kopira `artifacts/` (model.onnx,
+# notdog.onnx), a ti fajlovi nisu u gitu jer su binarni i prave se iz checkpointa.
+# Lagati build praznim artefaktima bi dalo zelen status koji nista ne dokazuje --
+# tacno greska iz Buga 5 (Kaggle je prijavio uspeh za prolaz koji je pukao).
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # ---------------------------------------------------------------- monitoring
+  monitoring:
+    name: Konfiguracija monitoringa
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: docker-compose.yml je ispravan
+        run: docker compose config --quiet
+
+      - name: Prometheus konfiguracija i pravila alarma
+        run: |
+          docker run --rm --entrypoint promtool \
+            -v "${{ github.workspace }}/monitoring:/m:ro" \
+            prom/prometheus:v2.54.1 \
+            check config /m/prometheus.yml --syntax-only
+          docker run --rm --entrypoint promtool \
+            -v "${{ github.workspace }}/monitoring:/m:ro" \
+            prom/prometheus:v2.54.1 \
+            check rules /m/alerts.yml
+
+      - name: Grafana dashboard je ispravan JSON
+        run: python -c "import json,sys; d=json.load(open('monitoring/grafana/dashboards/dog-breeds.json')); print(f\"{d['title']}: {len(d['panels'])} panela\")"
+
+  # ---------------------------------------------------------------- servis
+  servis:
+    name: Produkcione zavisnosti
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-service.txt
+
+      - name: Instaliraj SAMO ono sto ide u Docker image
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-service.txt pytest
+
+      # Ovo je prava provera: servis i detekcija drifta moraju da rade BEZ torch-a.
+      # Ako neko doda `import torch` u produkcioni put, ovaj korak pada.
+      - name: Produkcioni moduli se ucitavaju bez torch-a
+        run: |
+          python - <<'PY'
+          import sys
+          import dogbreeds.inference, dogbreeds.notdog, dogbreeds.drift, service.app
+          assert "torch" not in sys.modules, "torch je ucitan u produkcionom putu!"
+          print("ok -- bez torch-a")
+          PY
+
+      - name: Testovi drifta (trebaju samo numpy)
+        run: pytest tests/test_drift.py -q
+
+  # ---------------------------------------------------------------- pun pytest
+  testovi:
+    name: Svi testovi
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Instaliraj zavisnosti
+        run: |
+          python -m pip install --upgrade pip
+          # CPU wheel-ovi: podrazumevani torch za Linux vuce CUDA (~2,5 GB) koja
+          # runner-u nikad ne treba i samo produzava posao za vise minuta.
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      # Testovi servisa se preskacu bez artifacts/model.onnx -- to je ocekivano i
+      # vidi se u izvestaju, nije tiho preskakanje.
+      - name: pytest
+        run: pytest -q -rs

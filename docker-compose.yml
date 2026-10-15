@@ -1,0 +1,69 @@
+# Ceo produkcioni stek: servis + Prometheus (skuplja metrike) + Grafana (crta ih).
+#
+#     docker compose up -d --build       podigni sve
+#     docker compose ps                  stanje
+#     docker compose logs -f dog-service  logovi servisa
+#     docker compose down                ugasi (podaci ostaju u ./data/prod)
+#
+# Servis   http://127.0.0.1:8001
+# Grafana  http://127.0.0.1:3000   (bez lozinke)
+# Prom     http://127.0.0.1:9090
+
+services:
+
+  dog-service:
+    build: .
+    container_name: kp-dog-service
+    ports:
+      - "8001:8000"
+    environment:
+      # Dnevnik predikcija. Bind mount umesto imenovanog volumena je namerno:
+      # skripte za drift i izbor kandidata za doznacavanje citaju bazu sa domacina.
+      DOG_DB_PATH: /data/service.db
+      DOG_ORT_THREADS: "4"
+      DOG_DRIFT_INTERVAL_S: "30"
+    volumes:
+      - ./data/prod:/data
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: kp-dog-prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.enable-lifecycle
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      - dog-service
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: kp-dog-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      # Lokalni demo: bez prijave, da se panel otvori odmah.
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_USERS_DEFAULT_THEME: dark
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/dog-breeds.json
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:
+  grafana-data:

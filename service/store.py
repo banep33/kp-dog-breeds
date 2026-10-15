@@ -81,6 +81,33 @@ class Store:
                 " :was_top3, :note)", row)
             self._conn.commit()
 
+    def recent_signals(self, since_ts: float) -> list[dict]:
+        """Signali za detekciju drifta iz zadatog prozora. Indeks na ts drzi ovo jeftinim."""
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT ts, top1, max_prob, top3_mass, entropy, dog_score, confident, is_dog"
+                " FROM predictions WHERE ts >= ? ORDER BY ts", (since_ts,)).fetchall()
+        return [dict(r) for r in rows]
+
+    def relabel_candidates(self, limit: int = 500, max_top3_mass: float = 1.0,
+                           since_ts: float = 0.0) -> list[dict]:
+        """Kandidati za doznacavanje labela: korisnicke ispravke + nisko poverenje.
+
+        Ispravke idu prve (one su jedine sa poznatim tacnim odgovorom), pa zahtevi sa
+        najnizim poverenjem. LEFT JOIN, ne dva upita, da se redosled odredi u bazi.
+        """
+        with self._lock:
+            rows = self._conn.execute(
+                "SELECT p.request_id, p.ts, p.top1, p.top3_json, p.max_prob, p.top3_mass,"
+                "       p.entropy, p.dog_score, p.is_dog, p.confident,"
+                "       f.correct_breed, f.was_top1, f.was_top3, f.note"
+                "  FROM predictions p LEFT JOIN feedback f USING (request_id)"
+                " WHERE p.ts >= ? AND (f.correct_breed IS NOT NULL"
+                "       OR p.confident = 0 OR p.is_dog = 0 OR p.top3_mass <= ?)"
+                " ORDER BY (f.correct_breed IS NOT NULL) DESC, p.top3_mass ASC"
+                " LIMIT ?", (since_ts, max_top3_mass, limit)).fetchall()
+        return [dict(r) for r in rows]
+
     def counts(self) -> dict:
         with self._lock:
             p = self._conn.execute("SELECT COUNT(*) FROM predictions").fetchone()[0]

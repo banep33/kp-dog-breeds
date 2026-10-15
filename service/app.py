@@ -7,7 +7,8 @@ Rute:
     POST /predict   slika -> tri najverovatnije rase + poverenje
     POST /feedback  korisnik javlja tacnu rasu
     GET  /health    spremnost (za Docker healthcheck i orkestrator)
-    GET  /metrics   Prometheus (Dan 6)
+    GET  /drift     izvestaj o driftu u odnosu na val skup (Dan 6)
+    GET  /metrics   Prometheus
 
 Namerno NE zavisi od torch-a -- ucitava samo ONNX. Izmerena velicina image-a: 605 MB.
 """
@@ -28,6 +29,7 @@ from prometheus_client import CONTENT_TYPE_LATEST, Counter, Gauge, Histogram, ge
 from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 
+from dogbreeds import drift as drift_mod
 from dogbreeds.inference import Predictor
 from dogbreeds.notdog import DogGate
 
@@ -49,6 +51,24 @@ NOT_DOG = Counter("dog_not_a_dog_total", "Ulaza odbijenih kao nije pas")
 FEEDBACK = Counter("dog_feedback_total", "Primljenih povratnih informacija", ["kind"])
 READY = Gauge("dog_service_ready", "1 ako su modeli ucitani")
 
+# --- drift (Dan 6): servis sam poredi poslednja 24 h sa zamrznutom referencom sa val
+# skupa i izlaze rezultat kao gauge. Alarm je u monitoring/alerts.yml.
+DRIFT_PSI = Gauge("dog_drift_psi", "PSI produkcije u odnosu na val skup", ["feature"])
+DRIFT_KS = Gauge("dog_drift_ks", "KS statistika u odnosu na val skup", ["feature"])
+DRIFT_KS_P = Gauge("dog_drift_ks_pvalue", "p-vrednost KS testa", ["feature"])
+DRIFT_N = Gauge("dog_drift_window_samples", "Predikcija u prozoru za drift")
+
+# Labelirane serije se u prometheus_client pojavljuju tek pri prvom .inc(), pa posle
+# restarta Prometheus ne vidi nulu od koje bi merio porast: prvi uzorak bude vec npr. 3,
+# a `increase()` nad takvom serijom vrati 0 jer u prozoru nema rasta. Nelabelirani
+# brojaci tu gresku nemaju -- odatle je 15.10. nastao panel "udeo nisam siguran = 200,2%"
+# (brojilac izmeren, imenilac 0). Zato se sve ocekivane kombinacije labela zakucavaju
+# na nulu odmah pri ucitavanju modula.
+for _outcome in ("ok", "timeout"):
+    REQUESTS.labels(outcome=_outcome)
+for _kind in ("top1", "top3", "miss"):
+    FEEDBACK.labels(kind=_kind)
+
 STATE: dict = {}
 
 
@@ -62,6 +82,53 @@ def _load_threshold() -> tuple[str, float]:
         return "top3_mass", 0.0
 
 
+def _load_drift_reference() -> dict | None:
+    """Zamrznuta referenca sa val skupa. Bez nje servis radi, samo bez detekcije drifta."""
+    try:
+        ref = json.loads(config.DRIFT_REFERENCE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        print(f"[servis] nema {config.DRIFT_REFERENCE} -- detekcija drifta iskljucena "
+              "(napravi je sa scripts/make_drift_reference.py)")
+        return None
+    if not ref.get("numeric"):
+        print("[servis] referenca za drift je prazna -- detekcija iskljucena")
+        return None
+    return ref
+
+
+def _compute_drift() -> dict:
+    """Jedan prolaz racunanja drifta. Sinhrono -- poziva se iz threadpool-a."""
+    since = time.time() - config.DRIFT_WINDOW_HOURS * 3600
+    rows = STATE["store"].recent_signals(since)
+    numeric = {f: [r[f] for r in rows] for f in drift_mod.NUMERIC_FEATURES}
+    rep = drift_mod.compare(STATE["drift_reference"], numeric, [r["top1"] for r in rows])
+    rep["window_hours"] = config.DRIFT_WINDOW_HOURS
+    return rep
+
+
+def _publish_drift(rep: dict) -> None:
+    DRIFT_N.set(rep.get("n_samples", 0))
+    for name, d in rep.get("features", {}).items():
+        DRIFT_PSI.labels(feature=name).set(d["psi"])
+        if "ks" in d:
+            DRIFT_KS.labels(feature=name).set(d["ks"])
+            DRIFT_KS_P.labels(feature=name).set(d["ks_p"])
+
+
+async def _drift_loop() -> None:
+    """Periodicno racuna drift u pozadini. Ne sme da obori servis ako nesto pukne."""
+    while True:
+        try:
+            rep = await run_in_threadpool(_compute_drift)
+            STATE["drift"] = rep
+            _publish_drift(rep)
+        except asyncio.CancelledError:
+            raise
+        except Exception as e:                                     # noqa: BLE001
+            print(f"[drift] preskacem ciklus: {type(e).__name__}: {e}")
+        await asyncio.sleep(config.DRIFT_INTERVAL_S)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     STATE["predictor"] = Predictor(config.MODEL_PATH, threads=config.ORT_THREADS)
@@ -73,12 +140,25 @@ async def lifespan(app: FastAPI):
     STATE["signal"], STATE["threshold"] = _load_threshold()
     STATE["store"] = Store(config.DB_PATH)
     STATE["started"] = time.time()
+    STATE["drift_reference"] = _load_drift_reference()
+    STATE["drift"] = None
     READY.set(1)
     print(f"[servis] model {STATE['predictor'].model_version} | "
           f"{len(STATE['predictor'].classes)} rasa | "
           f"prag {STATE['signal']} >= {STATE['threshold']:.3f} | "
-          f"kapija {'DA' if STATE['gate'] else 'ne'}")
+          f"kapija {'DA' if STATE['gate'] else 'ne'} | "
+          f"drift {'na ' + str(int(config.DRIFT_INTERVAL_S)) + ' s' if STATE['drift_reference'] and config.DRIFT_INTERVAL_S > 0 else 'ne'}")
+
+    task = None
+    if STATE["drift_reference"] and config.DRIFT_INTERVAL_S > 0:
+        task = asyncio.create_task(_drift_loop())
     yield
+    if task:
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
     READY.set(0)
     STATE["store"].close()
 
@@ -232,8 +312,37 @@ async def health() -> dict:
         "n_classes": len(p.classes) if p else 0,
         "dog_gate": STATE.get("gate") is not None,
         "threshold": {"signal": STATE.get("signal"), "value": STATE.get("threshold")},
+        "drift": {
+            "enabled": STATE.get("drift_reference") is not None,
+            "status": (STATE.get("drift") or {}).get("status"),
+            "worst_psi": (STATE.get("drift") or {}).get("worst_psi"),
+            "n_samples": (STATE.get("drift") or {}).get("n_samples"),
+        },
         "uptime_s": round(time.time() - STATE["started"], 1) if STATE.get("started") else 0,
         "counts": STATE["store"].counts() if STATE.get("store") else {},
+    }
+
+
+@app.get("/drift")
+async def drift(refresh: bool = False) -> dict:
+    """Izvestaj o driftu. `?refresh=true` racuna odmah umesto da vrati poslednji."""
+    if STATE.get("drift_reference") is None:
+        raise HTTPException(503, "nema reports/drift_reference.json -- "
+                                 "napravi je sa scripts/make_drift_reference.py")
+    if refresh or STATE.get("drift") is None:
+        rep = await run_in_threadpool(_compute_drift)
+        STATE["drift"] = rep
+        _publish_drift(rep)
+    return {
+        "reference": {
+            "source": STATE["drift_reference"].get("source"),
+            "created": STATE["drift_reference"].get("created"),
+            "model_version": STATE["drift_reference"].get("model_version"),
+        },
+        "bands": {"stabilno": f"< {drift_mod.PSI_SHIFT}",
+                  "pomak": f"{drift_mod.PSI_SHIFT} - {drift_mod.PSI_DRIFT}",
+                  "drift": f"> {drift_mod.PSI_DRIFT}"},
+        **STATE["drift"],
     }
 
 

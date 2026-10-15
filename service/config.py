@@ -17,6 +17,13 @@ NOTDOG_PATH = _path("DOG_NOTDOG_PATH", "artifacts/notdog.onnx")
 THRESHOLD_REPORT = _path("DOG_THRESHOLD_REPORT", "reports/threshold.json")
 DB_PATH = _path("DOG_DB_PATH", "data/service.db")
 
+# Monitoring drifta (Dan 6). Referenca je zamrznuta raspodela sa val skupa; servis je
+# periodicno poredi sa prometom iz poslednjih DRIFT_WINDOW_HOURS sati i izlaze PSI kao
+# Prometheus gauge. Interval 0 iskljucuje racunanje.
+DRIFT_REFERENCE = _path("DOG_DRIFT_REFERENCE", "reports/drift_reference.json")
+DRIFT_INTERVAL_S = float(os.environ.get("DOG_DRIFT_INTERVAL_S", 300))
+DRIFT_WINDOW_HOURS = float(os.environ.get("DOG_DRIFT_WINDOW_HOURS", 24))
+
 # Ulaz: ogranicenja brane servis od prevelikih i pokvarenih fajlova
 MAX_UPLOAD_BYTES = int(os.environ.get("DOG_MAX_UPLOAD_BYTES", 8 * 1024 * 1024))
 MAX_IMAGE_PIXELS = int(os.environ.get("DOG_MAX_IMAGE_PIXELS", 50_000_000))

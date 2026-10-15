@@ -1,0 +1,14 @@
+# Grafana dobija izvor podataka iz fajla, ne iz klikanja po UI-ju -- da se stek podigne
+# gotov na svakoj masini. `prometheus:9090` je ime servisa iz docker-compose.yml.
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: prom-dog
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: 10s

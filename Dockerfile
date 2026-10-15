@@ -18,10 +18,13 @@ WORKDIR /app
 COPY requirements-service.txt .
 RUN pip install --no-cache-dir -r requirements-service.txt
 
-COPY dogbreeds/__init__.py dogbreeds/inference.py dogbreeds/notdog.py ./dogbreeds/
+COPY dogbreeds/__init__.py dogbreeds/inference.py dogbreeds/notdog.py dogbreeds/drift.py ./dogbreeds/
 COPY service/ ./service/
 COPY artifacts/ ./artifacts/
 COPY reports/threshold.json ./reports/threshold.json
+# Zamrznuta referenca sa val skupa za detekciju drifta (Dan 6). Ako je nema,
+# servis se i dalje podize -- samo bez /drift i bez dog_drift_psi metrike.
+COPY reports/drift_reference.json ./reports/drift_reference.json
 
 # dnevnik predikcija ide u volumen, da prezivi restart kontejnera
 RUN mkdir -p /data && useradd -m -u 10001 app && chown -R app:app /app /data

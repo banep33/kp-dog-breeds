@@ -1,0 +1,148 @@
+{
+  "computed_at": 1792061580.782466,
+  "n_samples": 2158,
+  "min_samples": 200,
+  "features": {
+    "top3_mass": {
+      "psi": 0.0061,
+      "status": "stabilno",
+      "ks": 0.0279,
+      "ks_p": 0.657244,
+      "ks_significant": false,
+      "n": 2158,
+      "prod_mean": 0.984,
+      "ref_mean": 0.9837,
+      "prod_p50": 0.9974,
+      "ref_p50": 0.9975
+    },
+    "max_prob": {
+      "psi": 0.0055,
+      "status": "stabilno",
+      "ks": 0.0403,
+      "ks_p": 0.211881,
+      "ks_significant": false,
+      "n": 2158,
+      "prod_mean": 0.9047,
+      "ref_mean": 0.9023,
+      "prod_p50": 0.9833,
+      "ref_p50": 0.9828
+    },
+    "entropy": {
+      "psi": 0.0056,
+      "status": "stabilno",
+      "ks": 0.0273,
+      "ks_p": 0.68279,
+      "ks_significant": false,
+      "n": 2158,
+      "prod_mean": 0.3091,
+      "ref_mean": 0.3158,
+      "prod_p50": 0.1098,
+      "ref_p50": 0.1119
+    },
+    "dog_score": {
+      "psi": 0.0123,
+      "status": "stabilno",
+      "ks": 0.034,
+      "ks_p": 0.402213,
+      "ks_significant": false,
+      "n": 2158,
+      "prod_mean": 0.9124,
+      "ref_mean": 0.9127,
+      "prod_p50": 0.9278,
+      "ref_p50": 0.9263
+    },
+    "top1_breed": {
+      "psi": 0.0679,
+      "status": "stabilno",
+      "n": 2158,
+      "n_classes": 120,
+      "cesce_nego_u_referenci": [
+        {
+          "breed": "chihuahua",
+          "psi_part": 0.0157,
+          "ref": 0.0068,
+          "prod": 0.02085
+        },
+        {
+          "breed": "scotch_terrier",
+          "psi_part": 0.0084,
+          "ref": 0.00729,
+          "prod": 0.01715
+        },
+        {
+          "breed": "japanese_spaniel",
+          "psi_part": 0.0062,
+          "ref": 0.00874,
+          "prod": 0.01761
+        },
+        {
+          "breed": "maltese_dog",
+          "psi_part": 0.004,
+          "ref": 0.01166,
+          "prod": 0.01946
+        },
+        {
+          "breed": "toy_terrier",
+          "psi_part": 0.0019,
+          "ref": 0.00777,
+          "prod": 0.01205
+        }
+      ],
+      "redje_nego_u_referenci": [
+        {
+          "breed": "silky_terrier",
+          "psi_part": 0.009,
+          "ref": 0.01846,
+          "prod": 0.00788
+        },
+        {
+          "breed": "miniature_poodle",
+          "psi_part": 0.0011,
+          "ref": 0.00777,
+          "prod": 0.0051
+        },
+        {
+          "breed": "basenji",
+          "psi_part": 0.0011,
+          "ref": 0.01214,
+          "prod": 0.0088
+        }
+      ],
+      "top_contributors": [
+        {
+          "breed": "chihuahua",
+          "psi_part": 0.0157,
+          "ref": 0.0068,
+          "prod": 0.02085
+        },
+        {
+          "breed": "silky_terrier",
+          "psi_part": 0.009,
+          "ref": 0.01846,
+          "prod": 0.00788
+        },
+        {
+          "breed": "scotch_terrier",
+          "psi_part": 0.0084,
+          "ref": 0.00729,
+          "prod": 0.01715
+        },
+        {
+          "breed": "japanese_spaniel",
+          "psi_part": 0.0062,
+          "ref": 0.00874,
+          "prod": 0.01761
+        },
+        {
+          "breed": "maltese_dog",
+          "psi_part": 0.004,
+          "ref": 0.01166,
+          "prod": 0.01946
+        }
+      ]
+    }
+  },
+  "worst_psi": 0.0679,
+  "status": "stabilno",
+  "window_hours": 24.0
+}

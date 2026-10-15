@@ -1,0 +1,378 @@
+{
+  "uid": "kp-dog-breeds",
+  "title": "Prepoznavanje rase psa — produkcija",
+  "tags": ["kp-dog-breeds"],
+  "timezone": "browser",
+  "editable": true,
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-30m", "to": "now" },
+  "templating": { "list": [] },
+  "annotations": { "list": [] },
+  "panels": [
+    {
+      "type": "row",
+      "title": "Stanje",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "Servis",
+      "description": "dog_service_ready — 1 kada su ONNX modeli ucitani. HTTP moze da odgovara i kada ovo padne na 0.",
+      "datasource": { "type": "prometheus", "uid": "prom-dog" },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "targets": [
+        { "refId": "A", "expr": "max(dog_service_ready)", "instant": true, "datasource": { "type": "prometheus", "uid": "prom-dog" } }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "1": { "text": "spreman", "color": "green", "index": 0 }, "0": { "text": "PAO", "color": "red", "index": 1 } } }
+          ],
+          "noValue": "nema podataka",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Zahteva u prozoru",
+      "description": "Broj /predict zahteva u izabranom vremenskom opsegu.",
+      "datasource": { "type": "prometheus", "uid": "prom-dog" },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "targets": [
+        { "refId": "A", "expr": "sum(increase(dog_requests_total[$__range]))", "instant": true, "datasource": { "type": "prometheus", "uid": "prom-dog" } }
+      ],
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "textMode": "value",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": { "unit": "short", "decimals": 0, "noValue": "0", "thresholds": { "mode": "absolute", "steps": [{ "color": "text", "value": null }] } },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "p95 latencija",
+      "description": "Budzet iz zadatka je 100 ms. Izmereno u Dockeru: 48,8 ms.",
+      "datasource": { "type": "prometheus", "uid": "prom-dog" },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "targets": [
+        { "refId": "A", "expr": "histogram_quantile(0.95, sum(rate(dog_predict_latency_seconds_bucket[5m])) by (le))", "instant": true, "datasource": { "type": "prometheus", "uid": "prom-dog" } }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "value",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 3,
+          "noValue": "—",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 0.08 }, { "color": "red", "value": 0.1 }] }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Udeo \"nisam siguran\"",
+      "description": "Prag top3_mass >= 0,915 fitovan na val skupu (4,7%); na testu dao 3,9%. Trajno iznad 15% znaci da ulaz vise ne lici na val.",
+      "datasource": { "type": "prometheus", "uid": "prom-dog" },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "targets": [
+        { "refId": "A", "expr": "sum(increase(dog_low_confidence_total[$__range])) / (sum(increase(dog_requests_total{outcome=\"ok\"}[$__range])) > 0)", "instant": true, "datasource": { "type": "prometheus", "uid": "prom-dog" } }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "value",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "decimals": 1,
+          "noValue": "—",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 0.1 }, { "color": "red", "value": 0.15 }] }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Udeo \"nije pas\"",
+      "description": "Kapija je kalibrisana da propusti 99% poznatih pasa, pa je na pravim psima ocekivano ~1%.",
+      "datasource": { "type": "prometheus", "uid": "prom-dog" },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "targets": [
+        { "refId": "A", "expr": "sum(increase(dog_not_a_dog_total[$__range])) / (sum(increase(dog_requests_total{outcome=\"ok\"}[$__range])) > 0)", "instant": true, "datasource": { "type": "prometheus", "uid": "prom-dog" } }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "value",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "decimals": 1,
+          "noValue": "—",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 0.15 }, { "color": "red", "value": 0.25 }] }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Ispravki od korisnika",
+      "description": "POST /feedback. Ulaz u petlju kontinualnog unapredjivanja.",
+      "datasource": { "type": "prometheus", "uid": "prom-dog" },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+      "targets": [
+        { "refId": "A", "expr": "sum(increase(dog_feedback_total[$__range]))", "instant": true, "datasource": { "type": "prometheus", "uid": "prom-dog" } }
+      ],
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "textMode": "value",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+      },
+      "fieldConfig": {
+        "defaults": { "unit": "short", "decimals": 0, "noValue": "0", "thresholds": { "mode": "absolute", "steps": [{ "color": "text", "value": null }] } },
+        "overrides": []
+      }
+    },
+
+    {
+      "type": "row",
+      "title": "Promet i brzina",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Zahteva u minuti",
+      "description": "rate() preko 1 min, prevedeno u zahteve/min. Razdvojeno po ishodu (ok / timeout).",
+      "datasource": { "type": "prometheus", "uid": "prom-dog" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(dog_requests_total[1m])) by (outcome) * 60", "legendFormat": "{{outcome}}", "datasource": { "type": "prometheus", "uid": "prom-dog" } }
+      ],
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true, "calcs": ["max", "mean"] },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqpm",
+          "decimals": 1,
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 18, "showPoints": "never", "spanNulls": true, "gradientMode": "opacity" }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Latencija /predict (p50 · p95 · p99)",
+      "description": "Iz Prometheus histograma. Budzet p95 < 100 ms je nacrtan kao crvena linija.",
+      "datasource": { "type": "prometheus", "uid": "prom-dog" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "targets": [
+        { "refId": "A", "expr": "histogram_quantile(0.50, sum(rate(dog_predict_latency_seconds_bucket[5m])) by (le))", "legendFormat": "p50", "datasource": { "type": "prometheus", "uid": "prom-dog" } },
+        { "refId": "B", "expr": "histogram_quantile(0.95, sum(rate(dog_predict_latency_seconds_bucket[5m])) by (le))", "legendFormat": "p95", "datasource": { "type": "prometheus", "uid": "prom-dog" } },
+        { "refId": "C", "expr": "histogram_quantile(0.99, sum(rate(dog_predict_latency_seconds_bucket[5m])) by (le))", "legendFormat": "p99", "datasource": { "type": "prometheus", "uid": "prom-dog" } }
+      ],
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true, "calcs": ["mean", "max"] },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 3,
+          "min": 0,
+          "custom": {
+            "drawStyle": "line", "lineWidth": 2, "fillOpacity": 8, "showPoints": "never", "spanNulls": true,
+            "thresholdsStyle": { "mode": "line" }
+          },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "transparent", "value": null }, { "color": "red", "value": 0.1 }] }
+        },
+        "overrides": []
+      }
+    },
+
+    {
+      "type": "row",
+      "title": "Kvalitet predikcija",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Poverenje u odgovore (kvantili top3_mass)",
+      "description": "Zbir verovatnoca prva tri odgovora. Prag 0,915 je nacrtan — ispod njega sistem kaze \"nisam siguran\".",
+      "datasource": { "type": "prometheus", "uid": "prom-dog" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
+      "targets": [
+        { "refId": "A", "expr": "histogram_quantile(0.10, sum(rate(dog_top3_mass_bucket[5m])) by (le))", "legendFormat": "p10 (najslabiji)", "datasource": { "type": "prometheus", "uid": "prom-dog" } },
+        { "refId": "B", "expr": "histogram_quantile(0.50, sum(rate(dog_top3_mass_bucket[5m])) by (le))", "legendFormat": "medijana", "datasource": { "type": "prometheus", "uid": "prom-dog" } },
+        { "refId": "C", "expr": "histogram_quantile(0.90, sum(rate(dog_top3_mass_bucket[5m])) by (le))", "legendFormat": "p90", "datasource": { "type": "prometheus", "uid": "prom-dog" } }
+      ],
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true, "calcs": ["mean"] },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "decimals": 1,
+          "max": 1,
+          "custom": {
+            "drawStyle": "line", "lineWidth": 2, "fillOpacity": 8, "showPoints": "never", "spanNulls": true,
+            "thresholdsStyle": { "mode": "line" }
+          },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "transparent", "value": null }, { "color": "orange", "value": 0.915 }] }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Udeo upozorenja i odbijanja",
+      "description": "Koliko odgovora ide uz napomenu. Ovo je prva stvar koja se pomeri kad se ulaz promeni.",
+      "datasource": { "type": "prometheus", "uid": "prom-dog" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(dog_low_confidence_total[5m])) / (sum(rate(dog_requests_total{outcome=\"ok\"}[5m])) > 0)", "legendFormat": "nisam siguran", "datasource": { "type": "prometheus", "uid": "prom-dog" } },
+        { "refId": "B", "expr": "sum(rate(dog_not_a_dog_total[5m])) / (sum(rate(dog_requests_total{outcome=\"ok\"}[5m])) > 0)", "legendFormat": "nije pas", "datasource": { "type": "prometheus", "uid": "prom-dog" } }
+      ],
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true, "calcs": ["mean", "max"] },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "decimals": 1,
+          "min": 0,
+          "custom": {
+            "drawStyle": "line", "lineWidth": 2, "fillOpacity": 18, "showPoints": "never", "spanNulls": true,
+            "thresholdsStyle": { "mode": "line" }
+          },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "transparent", "value": null }, { "color": "red", "value": 0.15 }] }
+        },
+        "overrides": []
+      }
+    },
+
+    {
+      "type": "row",
+      "title": "Drift i povratna sprega",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Drift: PSI u odnosu na val skup",
+      "description": "Population Stability Index. Racuna ga sam servis, poredeci poslednja 24 h sa zamrznutom referencom sa val skupa. Granice: 0,10 pomak · 0,25 ozbiljan drift.",
+      "datasource": { "type": "prometheus", "uid": "prom-dog" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "targets": [
+        { "refId": "A", "expr": "dog_drift_psi", "legendFormat": "{{feature}}", "datasource": { "type": "prometheus", "uid": "prom-dog" } }
+      ],
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "showLegend": true, "calcs": ["lastNotNull", "max"] },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 3,
+          "min": 0,
+          "custom": {
+            "drawStyle": "line", "lineWidth": 2, "fillOpacity": 6, "showPoints": "never", "spanNulls": true,
+            "thresholdsStyle": { "mode": "dashed+area" }
+          },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 0.1 }, { "color": "red", "value": 0.25 }] }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Povratne informacije korisnika",
+      "description": "top1 = model je pogodio prvi · top3 = pogodio medju tri · miss = promasio sve tri. Rastuci miss je okidac za doznacavanje labela.",
+      "datasource": { "type": "prometheus", "uid": "prom-dog" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "targets": [
+        { "refId": "A", "expr": "sum(increase(dog_feedback_total[10m])) by (kind)", "legendFormat": "{{kind}}", "datasource": { "type": "prometheus", "uid": "prom-dog" } }
+      ],
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true, "calcs": ["sum"] },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "min": 0,
+          "custom": { "drawStyle": "bars", "lineWidth": 1, "fillOpacity": 60, "showPoints": "never", "spanNulls": false, "stacking": { "mode": "normal", "group": "A" } }
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "miss" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }] },
+          { "matcher": { "id": "byName", "options": "top1" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }] },
+          { "matcher": { "id": "byName", "options": "top3" }, "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "yellow" } }] }
+        ]
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Kapija \"da li je pas\" — kvantili dog_score",
+      "description": "Izmereno pri kalibraciji: pravi psi 0,90-0,94, slike bez psa 0,018-0,027. Prag 0,6755.",
+      "datasource": { "type": "prometheus", "uid": "prom-dog" },
+      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 32 },
+      "targets": [
+        { "refId": "A", "expr": "histogram_quantile(0.10, sum(rate(dog_gate_score_bucket[5m])) by (le))", "legendFormat": "p10", "datasource": { "type": "prometheus", "uid": "prom-dog" } },
+        { "refId": "B", "expr": "histogram_quantile(0.50, sum(rate(dog_gate_score_bucket[5m])) by (le))", "legendFormat": "medijana", "datasource": { "type": "prometheus", "uid": "prom-dog" } }
+      ],
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true, "calcs": ["mean"] },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "decimals": 1,
+          "min": 0,
+          "max": 1,
+          "custom": {
+            "drawStyle": "line", "lineWidth": 2, "fillOpacity": 8, "showPoints": "never", "spanNulls": true,
+            "thresholdsStyle": { "mode": "line" }
+          },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "transparent", "value": null }, { "color": "orange", "value": 0.6755 }] }
+        },
+        "overrides": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+# Alarmi. Svaki prag je izveden iz necega sto je IZMERENO u ovom projektu, ne iz osecaja --
+# zato uz svaki stoji odakle broj dolazi. Prag koji niko ne ume da objasni se iskljuci
+# prvog dana kad lazno opali.
+#
+# Prometheus ovde samo PALI alarme (vide se na /alerts i u Grafani). Slanje mejla ili
+# Slack poruke radi Alertmanager -- nije dignut jer bi za lokalni demo trazio SMTP nalog.
+
+groups:
+
+  # ---------------------------------------------------------------- dostupnost
+  - name: dostupnost
+    rules:
+
+      - alert: ServisNedostupan
+        expr: up{job="dog-service"} == 0
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: "Servis ne odgovara na skupljanje metrika"
+          description: "Prometheus ne moze da dohvati /metrics vec 1 min. Kontejner je pao ili se restartuje."
+
+      - alert: ModelNijeUcitan
+        expr: dog_service_ready == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: "Servis radi ali model nije ucitan"
+          description: "dog_service_ready = 0. HTTP odgovara, predikcija ne radi -- najgora vrsta kvara, jer healthcheck moze da prodje."
+
+  # ---------------------------------------------------------------- performanse
+  - name: performanse
+    rules:
+
+      # Budzet iz zadatka je p95 < 100 ms. Izmereno u Dockeru: 48,8 ms. Alarm na 100 ms
+      # znaci "potrosena je cela rezerva od 2x", ne "malo je sporije".
+      - alert: LatencijaIznadBudzeta
+        expr: histogram_quantile(0.95, sum(rate(dog_predict_latency_seconds_bucket[5m])) by (le)) > 0.1
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "p95 latencija presla budzet od 100 ms"
+          description: "Izmereno u Dockeru je 48,8 ms. Vrednost preko 100 ms znaci opterecenje domacina ili premalo niti za ONNX."
+
+      # Drugi uslov je obavezan kod SVAKOG odnosa: bez njega se pri nula prometa deli
+      # nulom ili nekom izmisljenom konstantom. Tako je 15.10. panel prijavio "udeo
+      # nisam siguran = 200,2%" -- dva upozorenja podeljena vestackim imeniocem 1.
+      # 0,05 zahteva/s = 3 zahteva/min je donja granica na kojoj odnos uopste nesto znaci.
+      - alert: ZahteviPadaju
+        expr: |
+          sum(rate(dog_requests_total{outcome!="ok"}[5m]))
+            / sum(rate(dog_requests_total[5m])) > 0.05
+          and sum(rate(dog_requests_total[5m])) > 0.05
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Preko 5% zahteva zavrsava greskom"
+          description: "Uglavnom timeout (504). Normalno je 0%."
+
+  # ---------------------------------------------------------------- kvalitet predikcija
+  - name: kvalitet
+    rules:
+
+      # Prag top3_mass >= 0,915 je fitovan na val skupu tako da upozori na <= 5% zahteva;
+      # na test skupu je dao 3,9%. Trajnih 15% znaci da ulaz vise ne lici na val skup.
+      - alert: PrevisePonavljaNisamSiguran
+        expr: |
+          sum(rate(dog_low_confidence_total[15m]))
+            / sum(rate(dog_requests_total{outcome="ok"}[15m])) > 0.15
+          and sum(rate(dog_requests_total{outcome="ok"}[15m])) > 0.05
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Preko 15% odgovora ide uz upozorenje (ocekivano ~4%)"
+          description: "Prag je fitovan na val (4,7%), na testu je dao 3,9%. Trostruko vise znaci drugacije slike nego u treningu."
+
+      # Na poznatim psima kapija propusta 99% njih, dakle ~1% ih oznaci kao "nije pas".
+      - alert: PrevisePutaNijePas
+        expr: |
+          sum(rate(dog_not_a_dog_total[15m]))
+            / sum(rate(dog_requests_total{outcome="ok"}[15m])) > 0.25
+          and sum(rate(dog_requests_total{outcome="ok"}[15m])) > 0.05
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Preko 25% ulaza kapija odbija kao 'nije pas'"
+          description: "Kalibrisana je da propusti 99% poznatih pasa. Visok udeo znaci ili da korisnici salju sta stignu, ili da je kapija pokvarena."
+
+      # Korisnik salje ispravku samo kad model promasi. Ako vecina ispravki kaze da
+      # tacna rasa nije bila ni u prva tri, proizvod ne radi svoj posao.
+      # 0,0014/s ~ 5 ispravki na sat. Ispod toga je "troje ljudi se naljutilo", ne signal.
+      - alert: KorisniciPrijavljujuPromasaj
+        expr: |
+          sum(rate(dog_feedback_total{kind="miss"}[1h]))
+            / sum(rate(dog_feedback_total[1h])) > 0.5
+          and sum(rate(dog_feedback_total[1h])) > 0.0014
+        for: 30m
+        labels: { severity: warning }
+        annotations:
+          summary: "Vise od pola ispravki kaze da rase nije bilo ni u top-3"
+          description: "Izmeren top-3 je 98,25%. Ovo je signal da treba pokrenuti petlju doznacavanja (scripts/relabel_candidates.py)."
+
+  # ---------------------------------------------------------------- drift
+  - name: drift
+    rules:
+
+      # PSI (Population Stability Index) poredi raspodelu u produkciji sa val skupom.
+      # Uobicajene granice: < 0,10 stabilno | 0,10-0,25 pomak | > 0,25 ozbiljan drift.
+      - alert: DriftPoverenja
+        expr: dog_drift_psi{feature="top3_mass"} > 0.25
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Raspodela poverenja odstupila od val skupa (PSI > 0,25)"
+          description: "Ulazne slike vise ne lice na one na kojima je model meren. Prag sigurnosti je verovatno zastareo."
+
+      # IZMERENO 15.10.: kada je 22% prometa bilo zamucenih slika, PSI nad top3_mass je
+      # ostao 0,038 ("stabilno"), a KS je isti pomak uhvatio sa p = 2,7e-05. PSI nad 10
+      # kvantilnih binova je neosetljiv na delimicno zagadjenje; KS nije, jer ne binuje.
+      # Zato alarm na PSI nije dovoljan i ovaj mora da stoji pored njega.
+      #
+      # Uslov je dvostruk namerno: na velikom uzorku KS postaje "znacajan" i za razliku
+      # koja nikog ne zanima. D > 0,05 je prakticni prag, p < 0,01 statisticki.
+      # Isti princip kao intervali poverenja u Danu 2 -- znacajno nije isto sto i bitno.
+      - alert: DriftPoverenjaKS
+        expr: |
+          dog_drift_ks{feature="top3_mass"} > 0.05
+          and dog_drift_ks_pvalue{feature="top3_mass"} < 0.01
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: "KS test prijavljuje pomak raspodele poverenja (PSI ga jos ne vidi)"
+          description: "Osetljiviji od PSI-ja na delimicno zagadjenje prometa -- npr. kada deo korisnika predje na losiju kameru."
+
+      - alert: DriftRasa
+        expr: dog_drift_psi{feature="top1_breed"} > 0.25
+        for: 30m
+        labels: { severity: info }
+        annotations:
+          summary: "Raspodela predvidjenih rasa odstupila od val skupa"
+          description: "Ocekivano ako korisnici salju odredjene rase cesce nego sto ih ima u datasetu. Nije kvar, ali menja koje greske su skupe."

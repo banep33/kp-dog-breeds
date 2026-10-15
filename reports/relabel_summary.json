@@ -1,0 +1,185 @@
+{
+  "generisano": "2026-10-15 12:53:10",
+  "baza": "C:\\Users\\Bane\\Desktop\\Projects\\Prepoznavanje rasa pasa\\data\\prod\\service.db",
+  "prozor_dana": 30.0,
+  "prag_poverenja": 0.915,
+  "predikcija_ukupno": 2158,
+  "kandidata": 135,
+  "udeo_kandidata": 0.0626,
+  "po_razlogu": {
+    "ispravka: nije bilo ni u top-3": 18,
+    "ispravka: bilo u top-3, ali ne prvo": 41,
+    "nisko poverenje": 57,
+    "kapija: nije pas": 19
+  },
+  "rase_sa_najvise_gresaka": [
+    [
+      "chihuahua",
+      8
+    ],
+    [
+      "miniature_poodle",
+      5
+    ],
+    [
+      "miniature_schnauzer",
+      5
+    ],
+    [
+      "irish_wolfhound",
+      5
+    ],
+    [
+      "lakeland_terrier",
+      4
+    ],
+    [
+      "dhole",
+      4
+    ],
+    [
+      "french_bulldog",
+      4
+    ],
+    [
+      "bouvier_des_flandres",
+      4
+    ],
+    [
+      "kelpie",
+      4
+    ],
+    [
+      "english_setter",
+      3
+    ],
+    [
+      "australian_terrier",
+      3
+    ],
+    [
+      "appenzeller",
+      3
+    ],
+    [
+      "norfolk_terrier",
+      3
+    ],
+    [
+      "toy_terrier",
+      3
+    ],
+    [
+      "siberian_husky",
+      3
+    ]
+  ],
+  "parovi_zamena": [
+    {
+      "par": [
+        "chihuahua",
+        "toy_terrier"
+      ],
+      "n": 4
+    },
+    {
+      "par": [
+        "miniature_poodle",
+        "toy_poodle"
+      ],
+      "n": 4
+    },
+    {
+      "par": [
+        "appenzeller",
+        "entlebucher"
+      ],
+      "n": 4
+    },
+    {
+      "par": [
+        "silky_terrier",
+        "yorkshire_terrier"
+      ],
+      "n": 3
+    },
+    {
+      "par": [
+        "australian_terrier",
+        "yorkshire_terrier"
+      ],
+      "n": 2
+    },
+    {
+      "par": [
+        "eskimo_dog",
+        "siberian_husky"
+      ],
+      "n": 2
+    },
+    {
+      "par": [
+        "australian_terrier",
+        "silky_terrier"
+      ],
+      "n": 2
+    },
+    {
+      "par": [
+        "labrador_retriever",
+        "redbone"
+      ],
+      "n": 1
+    },
+    {
+      "par": [
+        "miniature_poodle",
+        "soft-coated_wheaten_terrier"
+      ],
+      "n": 1
+    },
+    {
+      "par": [
+        "english_setter",
+        "ibizan_hound"
+      ],
+      "n": 1
+    },
+    {
+      "par": [
+        "irish_terrier",
+        "wire-haired_fox_terrier"
+      ],
+      "n": 1
+    },
+    {
+      "par": [
+        "dandie_dinmont",
+        "maltese_dog"
+      ],
+      "n": 1
+    },
+    {
+      "par": [
+        "lakeland_terrier",
+        "welsh_springer_spaniel"
+      ],
+      "n": 1
+    },
+    {
+      "par": [
+        "appenzeller",
+        "border_collie"
+      ],
+      "n": 1
+    },
+    {
+      "par": [
+        "american_staffordshire_terrier",
+        "italian_greyhound"
+      ],
+      "n": 1
+    }
+  ],
+  "csv": "C:\\Users\\Bane\\Desktop\\Projects\\Prepoznavanje rasa pasa\\reports\\relabel_candidates.csv"
+}

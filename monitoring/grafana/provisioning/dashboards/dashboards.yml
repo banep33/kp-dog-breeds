@@ -1,0 +1,14 @@
+# Panel se takodje ucitava iz fajla. Dashboard JSON je u gitu, pa je i on deo koda.
+apiVersion: 1
+
+providers:
+  - name: kp-dog
+    orgId: 1
+    folder: ""
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false
+    updateIntervalSeconds: 15
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false
